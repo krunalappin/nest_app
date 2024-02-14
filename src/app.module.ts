@@ -9,6 +9,8 @@ import { AuthModule } from './auth/auth.module';
 import { AuthController } from './auth/auth.controller';
 import { SessionModule } from './session/session.module';
 import { TableModule } from './dropTable/table.module';
+import { CategoryModule } from './categories/category.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { TableModule } from './dropTable/table.module';
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    ProductModule,
+    CategoryModule,
     TableModule,
     UserModule,
     BlogModule,

@@ -20,5 +20,4 @@ export class UserSession {
     access_token: string
 
 
-
 }

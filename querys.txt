@@ -1,0 +1,90 @@
+
+*********************************Count Category wise product Query 
+
+select categories.name as category , count(products.product_name) as products from products
+left join categories on products.category_id = categories.id
+group by category 
+
+**********************************Select Query
+
+select * from products;
+
+**********************************Left Join
+
+select products.* , categories.name as category_name from products
+left join categories on products.category_id = categories.id
+
+*********************************Minimum Price
+
+select MIN(price) from products;
+
+**********************************Maximum Price
+
+select MAX(price) from products;
+
+***********************************Condition Query
+
+select * from products
+where price > 15;
+
+*******************************limit Query
+
+select * from products
+limit 20
+
+********************************Add Query
+
+insert into products (product_name, unit , price , category_id)
+values
+('ABC' , 'KG' , 130 , 5)
+
+********************************delete Query
+
+delete from products
+where id = 'dgsdhfhibdhhbdnaksh'
+
+********************************find Query
+
+select * from products
+where id = ''
+
+**********************************sum Query
+
+SELECT SUM(price)
+FROM products;
+
+********************************Opretors
+
+=
+<
+>
+<=
+>=
+!=
+IS
+LIKE = Return all the value who started from the given value (Case sensitive);
+ILIKE = Return all the value who started from the given value (Case Insensitive);
+AND = check more then the one condition and Return
+OR = check condtion is one of many condition is match and Return
+IN = retrun all value were given value is matches
+BETWEEN
+
+
+***********************Joins
+
+INNER JOIN
+LEFT JOIN
+RIGHT JOIN
+FULL JOIN
+CROSS JOIN
+
+**********************case Query
+
+SELECT product_name,
+CASE
+  WHEN price < 5 THEN 'Low price'
+  WHEN price > 45 THEN 'High price'
+ELSE
+  'Normal Price'
+END
+FROM products;
