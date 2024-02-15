@@ -96,6 +96,13 @@ select orders.id , products.product_name,orders.quantity,products.price, product
 left join products on orders.product_id = products.id
 left join "user" u on orders.user_id = u."id"
 
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+select orders.id , categories.name as category_name ,products.product_name,orders.quantity,products.price, products.unit, orders.total_price , u.username  from orders
+left join products on orders.product_id = products.id
+left join categories on products.category_id = categories.id
+left join "user" u on orders.user_id = u."id"
+
 
 ****************************************Get By Id for orders
 
@@ -103,3 +110,57 @@ select orders.id , products.product_name,orders.quantity,products.price, product
 left join products on orders.product_id = products.id
 left join "user" u on orders.user_id = u."id"
 where orders.id = '507fda5b-35fb-4aaf-bb59-8bcf6fe31c33'
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&   TASK 15-02-2024  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+*************************************Count User on products
+
+select products.product_name, COUNT(DISTINCT u."id") AS user_count  from orders
+left join products on orders.product_id = products.id
+left join "user" u on orders.user_id = u."id"
+GROUP BY products.product_name;
+
+***************************************Count User on Category
+
+SELECT categories.name AS category_name, COUNT(DISTINCT u."id") AS user_count
+FROM orders
+JOIN products ON orders.product_id = products.id
+JOIN categories ON products.category_id = categories.id
+JOIN "user" u ON orders.user_id = u."id"
+GROUP BY categories.name;
+
+****************************************Catgory Wise Revenew
+
+select categories.name as category_name , sum(orders.quantity * products.price) as total_revenue from orders
+left join products on orders.product_id = products.id
+left join categories on products.category_id = categories.id
+group by categories.name
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+select categories.name as category_name , 
+sum(orders.quantity * products.price) as total_revenue,
+count(DISTINCT u."id") as user_count
+from orders
+left join products on orders.product_id = products.id
+left join categories on products.category_id = categories.id
+JOIN "user" u ON orders.user_id = u."id"
+group by categories.name
+
+***************************************Product Wise Revenew
+
+select products.product_name, sum(orders.quantity * products.price) as total_revenue from orders
+left join products on orders.product_id = products.id
+group by products.product_name
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+select products.product_name, 
+sum(orders.quantity * products.price) as total_revenue, 
+COUNT(DISTINCT u."id") AS user_count 
+from orders
+left join products on orders.product_id = products.id
+JOIN "user" u ON orders.user_id = u."id"
+group by products.product_name
+
+

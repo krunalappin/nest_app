@@ -8,6 +8,7 @@ import { SessionModule } from "src/session/session.module";
 import { UserModule } from "src/user/user.module";
 import { User } from "src/user/entity/user.entity";
 import { Products } from "src/product/entity/product.entity";
+import { Categories } from "src/categories/entity/category.entity";
 
 @Module({
     imports : [
@@ -15,7 +16,8 @@ import { Products } from "src/product/entity/product.entity";
         SessionModule,
         TypeOrmModule.forFeature([Orders]),
         TypeOrmModule.forFeature([User]),
-        TypeOrmModule.forFeature([Products])
+        TypeOrmModule.forFeature([Products]),
+        TypeOrmModule.forFeature([Categories]),
     ],
     controllers : [OrderController],
     providers : [OrderService],

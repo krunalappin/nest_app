@@ -89,9 +89,9 @@ export class ProductService {
 
     async joinProduct(): Promise<Products[]> {
         const query = await this.productRepository.createQueryBuilder('products')
-        .leftJoinAndSelect('products.category', 'category')
-        .select(['products.*', 'category.name as category_name'])
-        .getRawMany();
+            .leftJoinAndSelect('products.category', 'category')
+            .select(['products.*', 'category.name as category_name'])
+            .getRawMany();
 
         return query;
     }

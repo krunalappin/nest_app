@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
         }
 
         const validToken = await this.sessionService.findByToken(token);
-        if(!(token == validToken?.access_token)) {
+        if(!(token === validToken?.access_token)) {
             throw new UnauthorizedException('Invalid Token');
         }
         
