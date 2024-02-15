@@ -1,4 +1,6 @@
 import { Blog } from "src/blog/entities/blog.entity";
+import { Orders } from "src/order/entity/order.entity";
+import { Products } from "src/product/entity/product.entity";
 import { UserSession } from "src/session/session.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { v4 as uuidv4 } from 'uuid';
@@ -36,6 +38,9 @@ export class User {
 
     @OneToMany(() => UserSession, (session) => session.user)
     session: UserSession[];
+
+    @OneToMany(() => Orders, (order) => order.user)
+    order: Orders[];
 
 
     constructor(partial: Partial<User>) {

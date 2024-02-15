@@ -1,12 +1,13 @@
 import { Categories } from "src/categories/entity/category.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Orders } from "src/order/entity/order.entity";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity()
 export class Products {
 
     @PrimaryGeneratedColumn('uuid')
-    id : number;
+    id : string;
 
     @Column()
     product_name : string;
@@ -20,5 +21,9 @@ export class Products {
     @ManyToOne(() => Categories, (category) => category.products)
     @JoinColumn({name : 'category_id'})
     category : Categories;
+
+    @OneToMany(() => Orders, (order) => order.product)
+    order : Orders[]
+    
 }
 

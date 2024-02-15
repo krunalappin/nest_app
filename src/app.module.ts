@@ -11,6 +11,7 @@ import { SessionModule } from './session/session.module';
 import { TableModule } from './dropTable/table.module';
 import { CategoryModule } from './categories/category.module';
 import { ProductModule } from './product/product.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ProductModule } from './product/product.module';
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    OrderModule,
     ProductModule,
     CategoryModule,
     TableModule,

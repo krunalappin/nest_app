@@ -88,3 +88,18 @@ ELSE
   'Normal Price'
 END
 FROM products;
+
+
+****************************************Get All Order Query
+
+select orders.id , products.product_name,orders.quantity,products.price, products.unit, orders.total_price , u.username  from orders
+left join products on orders.product_id = products.id
+left join "user" u on orders.user_id = u."id"
+
+
+****************************************Get By Id for orders
+
+select orders.id , products.product_name,orders.quantity,products.price, products.unit, orders.total_price , u.username  from orders
+left join products on orders.product_id = products.id
+left join "user" u on orders.user_id = u."id"
+where orders.id = '507fda5b-35fb-4aaf-bb59-8bcf6fe31c33'

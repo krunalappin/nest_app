@@ -20,41 +20,42 @@ export class ProductService {
         if (!products || products.length === 0) {
             throw new NotFoundException('Products Not Availeble');
         }
+
         return products;
     }
 
     async createProducts(body: CreateProductDto): Promise<Products> {
-           const query = `
+        const query = `
                 INSERT INTO products (product_name , unit , price , category_id)
                 VALUES ('${body.product_name}' , '${body.unit}' , '${body.price}' , '${body.categoryId}');
            `
-           const products = await this.productRepository.query(query);
-           if (!products) {
-               throw new Error('Product not created');
-           }
-
-           const find = `SELECT * FROM products WHERE product_name = '${body.product_name}'`;
-           const result = await this.productRepository.query(find);
-           return result;
+        const products = await this.productRepository.query(query);
+        if (!products) {
+            throw new Error('Product not created');
         }
 
-    async deleteProduct(id: string) : Promise<Products | object> {
+        const find = `SELECT * FROM products WHERE product_name = '${body.product_name}'`;
+        const result = await this.productRepository.query(find);
+        return result;
+    }
+
+    async deleteProduct(id: string): Promise<Products | object> {
         const existquery = `SELECT * FROM products WHERE id = '${id}'`;
         const exist = await this.productRepository.query(existquery);
         if (!exist.length) {
             throw new NotFoundException('Product does not exist');
-            
+
         }
         const query = `DELETE FROM products WHERE id = '${id}'`;
         const result = await this.productRepository.query(query);
-        
+
         return {
             exist,
             message: 'Product deleted successfully'
         }
     }
 
-    async updateProduct(id: string , body: CreateProductDto) : Promise<Products | object> {
+    async updateProduct(id: string, body: CreateProductDto): Promise<Products | object> {
         const existquery = `SELECT * FROM products WHERE id = '${id}'`;
         const exist = await this.productRepository.query(existquery);
         if (!exist.length) {
@@ -69,21 +70,33 @@ export class ProductService {
             throw new ForbiddenException('Product not updated');
         }
         return {
-            
+
             message: 'Product updated successfully'
         }
     }
 
-async filterProduct(body : QueryProductDto) : Promise<Products[]> {
+    async filterProduct(body: QueryProductDto): Promise<Products[]> {
 
-    const query = `SELECT * FROM products WHERE 
+        const query = `SELECT * FROM products WHERE 
     product_name LIKE '%${body.product_name}%'`;
-    
-    const products = await this.productRepository.query(query);
-    if (!products.length || products.length === 0) {
-        throw new NotFoundException('Product not Available');
+
+        const products = await this.productRepository.query(query);
+        if (!products.length || products.length === 0) {
+            throw new NotFoundException('Product not Available');
+        }
+        return products;
     }
-    return products;
-}
+
+    async joinProduct(): Promise<Products[]> {
+        const query = await this.productRepository.createQueryBuilder('products')
+        .leftJoinAndSelect('products.category', 'category')
+        .select(['products.*', 'category.name as category_name'])
+        .getRawMany();
+
+        return query;
+    }
+
+
+
 }
 

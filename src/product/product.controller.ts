@@ -37,4 +37,9 @@ export class ProductController {
         return await this.productService.filterProduct(body);
     }
 
+    @Get('/join')
+    async joinProducts() {
+        return await this.productService.joinProduct();
+    }
+
 }
