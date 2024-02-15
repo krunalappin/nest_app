@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
@@ -12,6 +11,8 @@ import { TableModule } from './dropTable/table.module';
 import { CategoryModule } from './categories/category.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 @Module({
   imports: [
@@ -25,6 +26,9 @@ import { OrderModule } from './order/order.module';
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    // GraphQLModule.forRoot<ApolloDriverConfig>({
+    //   driver: ApolloDriver,
+    // }),
     OrderModule,
     ProductModule,
     CategoryModule,
@@ -32,7 +36,8 @@ import { OrderModule } from './order/order.module';
     UserModule,
     BlogModule,
     AuthModule,
-    SessionModule, 
+    SessionModule,
+     
   ],
   providers: [AuthController],
   
