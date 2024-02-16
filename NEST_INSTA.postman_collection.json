@@ -181,6 +181,33 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Graphql",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query{\r\n    getAllUsers {\r\n        id\r\n        username\r\n    }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -557,6 +584,33 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Category-GraphQL",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query{\r\n    getAllCategories {\r\n        id\r\n        description\r\n    }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -753,6 +807,60 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "GraphQL_API",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query{\r\n    products {\r\n        id\r\n        product_name\r\n        unit\r\n        price\r\n        category {\r\n            id\r\n            name\r\n            description\r\n        }\r\n    }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GraphQL_GetById_Products",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetProductById($id: String!) {\r\n  product(id: $id) {\r\n    id\r\n    product_name\r\n    unit\r\n    price\r\n    category {\r\n      id\r\n      name\r\n      description\r\n    }\r\n  }\r\n}\r\n",
+								"variables": "{\r\n    \"id\": \"042c3096-d6b9-4742-a72e-6cec64581792\"\r\n}"
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/graphql",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"graphql"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -925,9 +1033,19 @@
 				},
 				{
 					"name": "Product-User-Count",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "",
+								"variables": ""
+							}
+						},
 						"url": {
 							"raw": "http://localhost:3000/order/product_user",
 							"protocol": "http",

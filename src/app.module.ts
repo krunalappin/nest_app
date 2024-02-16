@@ -26,9 +26,11 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    // GraphQLModule.forRoot<ApolloDriverConfig>({
-    //   driver: ApolloDriver,
-    // }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      autoSchemaFile: 'schema.gql',
+      path: '/api/graphql',
+      driver: ApolloDriver,
+    }),
     OrderModule,
     ProductModule,
     CategoryModule,

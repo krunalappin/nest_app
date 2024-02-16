@@ -1,0 +1,35 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: Int!
+  username: String!
+  email: String!
+  password: String!
+  bio: String!
+  fullname: String!
+  website: String!
+  phoneNumber: String!
+}
+
+type Category {
+  id: Int!
+  name: String!
+  description: String!
+}
+
+type Product {
+  id: String!
+  product_name: String!
+  unit: String!
+  price: Float!
+  category: Category
+}
+
+type Query {
+  getAllUsers: [User!]!
+  products: [Product!]!
+  product(id: String!): Product!
+  getAllCategories: [Category!]!
+}
