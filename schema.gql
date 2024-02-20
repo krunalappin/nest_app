@@ -27,7 +27,23 @@ type Product {
   category: Category
 }
 
+type Order {
+  id: String!
+  user: User!
+  product: Product!
+  quantity: Int!
+  total_price: Float!
+  created_at: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type Query {
+  getAllOrders: [Order!]!
+  getOrderById(id: String!): Order!
   getAllUsers: [User!]!
   products: [Product!]!
   product(id: String!): Product!
@@ -35,9 +51,16 @@ type Query {
 }
 
 type Mutation {
+  createOrder(graphqlOrderDto: GraphqlOrderDto!): Order!
   createProduct(graphqlProductDto: GraphqlProductDto!): Product!
   deleteProduct(id: String!): String!
   updateProduct(id: ID!, graphqlProductDto: GraphqlProductDto!): Product!
+}
+
+input GraphqlOrderDto {
+  user_id: Float!
+  product_id: String!
+  quantity: Float!
 }
 
 input GraphqlProductDto {

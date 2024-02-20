@@ -6,6 +6,8 @@ import { CreateOrderDto } from "./dto/create-order.dto";
 import { User } from "src/user/entity/user.entity";
 import { Products } from "src/product/entity/product.entity";
 import { Categories } from "src/categories/entity/category.entity";
+import { Order } from "./model/order.model";
+import { GraphqlOrderDto } from "./dto/graphql-order.dto";
 
 
 @Injectable()
@@ -211,4 +213,47 @@ export class OrderService {
 
         return result;
     }
+
+
+
+    // ************************************************************************GARPHQL*************************************************************************
+
+    async graphqlGetAllOrder(): Promise<Order[]> {
+        return this.orderRepository.find( { relations: ['user', 'product'] } );
+    }
+
+    async graphqlGetOrderById(id: string): Promise<Order> {
+        const order = await this.orderRepository.findOne({ where: { id }, relations: ['user', 'product'] });
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+        return order;
+    }
+
+    async graphqlCreateOrder(graphqlOrderDto: GraphqlOrderDto): Promise<Order> {
+        const { user_id, product_id, quantity} = graphqlOrderDto;
+
+        const user = await this.userRepository.findOne({ where: { id: user_id } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const product = await this.productRepository.findOne({ where: { id: product_id } });
+        if (!product) {
+            throw new Error('Product not found');
+        }
+
+        const totalprice = quantity * product.price;
+
+        const order = await this.orderRepository.create({
+            user,
+            product,
+            quantity,
+            total_price : totalprice,
+        });
+        return await this.orderRepository.save(order);
+
+    }
+
+
 }

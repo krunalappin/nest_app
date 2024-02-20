@@ -9,6 +9,7 @@ import { UserModule } from "src/user/user.module";
 import { User } from "src/user/entity/user.entity";
 import { Products } from "src/product/entity/product.entity";
 import { Categories } from "src/categories/entity/category.entity";
+import { OrderResolver } from "./order.resolver";
 
 @Module({
     imports : [
@@ -20,8 +21,8 @@ import { Categories } from "src/categories/entity/category.entity";
         TypeOrmModule.forFeature([Categories]),
     ],
     controllers : [OrderController],
-    providers : [OrderService],
-    exports : [OrderService],
+    providers : [OrderService , OrderResolver],
+    exports : [OrderService, OrderResolver],
     
 })
 
