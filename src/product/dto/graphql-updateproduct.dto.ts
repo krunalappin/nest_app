@@ -3,15 +3,15 @@ import { InputType, Field, Int } from '@nestjs/graphql';
 @InputType()
 export class UpdateProductDto {
 
-  @Field()
+  @Field({ nullable: true })
   product_name?: string;
 
-  @Field()
+  @Field({ nullable: true })
   unit?: string;
 
-  @Field()
+  @Field({ nullable: true })
   price?: number;
 
-  @Field()
+  @Field({ nullable: true })
   category_id?: number;
 }

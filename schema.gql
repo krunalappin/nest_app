@@ -52,9 +52,11 @@ type Query {
 
 type Mutation {
   createOrder(graphqlOrderDto: GraphqlOrderDto!): Order!
+  deleteOrder(id: String!): String!
+  updateOrder(id: String!, graphqlOrderDto: UpdateGraphqlOrderDto!): Order!
   createProduct(graphqlProductDto: GraphqlProductDto!): Product!
   deleteProduct(id: String!): String!
-  updateProduct(id: ID!, graphqlProductDto: GraphqlProductDto!): Product!
+  updateProduct(id: ID!, graphqlProductDto: UpdateProductDto!): Product!
 }
 
 input GraphqlOrderDto {
@@ -63,9 +65,22 @@ input GraphqlOrderDto {
   quantity: Float!
 }
 
+input UpdateGraphqlOrderDto {
+  user_id: Float
+  product_id: String
+  quantity: Float
+}
+
 input GraphqlProductDto {
   product_name: String!
   unit: String!
   price: Float!
   category_id: Float!
+}
+
+input UpdateProductDto {
+  product_name: String
+  unit: String
+  price: Float
+  category_id: Float
 }

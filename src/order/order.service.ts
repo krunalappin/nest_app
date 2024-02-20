@@ -8,6 +8,7 @@ import { Products } from "src/product/entity/product.entity";
 import { Categories } from "src/categories/entity/category.entity";
 import { Order } from "./model/order.model";
 import { GraphqlOrderDto } from "./dto/graphql-order.dto";
+import { UpdateGraphqlOrderDto } from "./dto/graphql-updateorder.dto";
 
 
 @Injectable()
@@ -231,28 +232,44 @@ export class OrderService {
     }
 
     async graphqlCreateOrder(graphqlOrderDto: GraphqlOrderDto): Promise<Order> {
-        const { user_id, product_id, quantity} = graphqlOrderDto;
 
-        const user = await this.userRepository.findOne({ where: { id: user_id } });
+        const user = await this.userRepository.findOne({ where: { id: graphqlOrderDto.user_id } });
         if (!user) {
-            throw new Error('User not found');
+            throw new NotFoundException('User not found')
         }
-
-        const product = await this.productRepository.findOne({ where: { id: product_id } });
+        const product = await this.productRepository.findOne({ where: { id: graphqlOrderDto.product_id } });
         if (!product) {
-            throw new Error('Product not found');
+            throw new NotFoundException('Product not found');
         }
-
-        const totalprice = quantity * product.price;
-
-        const order = await this.orderRepository.create({
-            user,
-            product,
-            quantity,
-            total_price : totalprice,
-        });
+        const totalprice = graphqlOrderDto.quantity * product.price;
+        const order = await this.orderRepository.create({...graphqlOrderDto , total_price : totalprice });
         return await this.orderRepository.save(order);
 
+    }
+
+    async graphqlDeleteOrderById(id: string): Promise<string> {
+
+        const result = await this.orderRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException('Order not found');
+        }
+
+        return 'Order deleted successfully';
+    }
+
+    async graphqlUpdateOrder(id : string , graphqlOrderDto:UpdateGraphqlOrderDto): Promise<Order>{
+        const product = await this.productRepository.findOne({ where: { id: graphqlOrderDto.product_id } });
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+        const user = await this.userRepository.findOne({ where: { id: graphqlOrderDto.user_id } });
+        if (!user) {
+            throw new NotFoundException('User not found')
+        }
+
+        const updatedFields: Partial<Order> = { ...graphqlOrderDto , id};
+        await this.productRepository.update({ id }, updatedFields);
+        return await this.orderRepository.findOne({ where: { id } , relations: ['user', 'product'] }); 
     }
 
 

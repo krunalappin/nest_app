@@ -48,7 +48,7 @@ export class ProductResolver {
     @Mutation(() => Product)
     async updateProduct(
         @Args('id', { type: () => ID }) id: string,
-        @Args('graphqlProductDto') graphqlProductDto: GraphqlProductDto,
+        @Args('graphqlProductDto') graphqlProductDto: UpdateProductDto,
     ): Promise<Product> {
         return this.productService.updateProducts(id, graphqlProductDto);
     }

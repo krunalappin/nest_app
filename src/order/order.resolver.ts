@@ -3,29 +3,42 @@ import { OrderService } from "./order.service";
 import { Order } from "./model/order.model";
 import { CreateOrderDto } from "./dto/create-order.dto";
 import { GraphqlOrderDto } from "./dto/graphql-order.dto";
+import { UpdateGraphqlOrderDto } from "./dto/graphql-updateorder.dto";
+import { retry } from "rxjs";
 
 @Resolver('Order')
 export class OrderResolver {
 
-    constructor(private readonly orderService:OrderService){}
+    constructor(private readonly orderService: OrderService) { }
 
-    @Query( () => [Order] )
-    async getAllOrders() : Promise<Order[]> {
+    @Query(() => [Order])
+    async getAllOrders(): Promise<Order[]> {
         const order = await this.orderService.graphqlGetAllOrder();
         return order
     }
 
-    @Query( () => Order )
-    async getOrderById(@Args('id') id : string) : Promise<Order> {
+    @Query(() => Order)
+    async getOrderById(@Args('id') id: string): Promise<Order> {
         const order = await this.orderService.graphqlGetOrderById(id);
         return order
     }
 
-    @Mutation( () => Order )
-    async createOrder(@Args('graphqlOrderDto') graphqlOrderDto : GraphqlOrderDto) : Promise<Order> {
+    @Mutation(() => Order)
+    async createOrder(@Args('graphqlOrderDto') graphqlOrderDto: GraphqlOrderDto): Promise<Order> {
 
         const order = await this.orderService.graphqlCreateOrder(graphqlOrderDto);
         return order;
-        
+
+    }
+
+    @Mutation(() => String)
+    async deleteOrder(@Args('id') id: string): Promise<String> {
+        const order = await this.orderService.graphqlDeleteOrderById(id);
+        return "Order deleted successfully";
+    }
+
+    @Mutation(() => Order)
+    async updateOrder(@Args('id') id : string , @Args('graphqlOrderDto') graphqlOrderDto:UpdateGraphqlOrderDto) : Promise<Order>{
+        return await this.orderService.graphqlUpdateOrder(id,graphqlOrderDto);
     }
 }   

@@ -3,16 +3,16 @@ import { InputType, Field, Int } from '@nestjs/graphql';
 @InputType()
 export class GraphqlProductDto {
     @Field()
-    product_name?: string
+    product_name: string
 
     @Field()
-    unit?: string;
+    unit: string;
 
     @Field()
-    price?: number;
+    price: number;
 
     @Field()
-    category_id?: number
+    category_id: number
 }
 
 

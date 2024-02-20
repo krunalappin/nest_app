@@ -1,16 +1,15 @@
 import { Field, InputType } from "@nestjs/graphql";
 
 @InputType()
-export class GraphqlOrderDto {
+export class UpdateGraphqlOrderDto {
     
-    @Field()
+    @Field({ nullable: true })
     user_id?: number
 
-    @Field()
+    @Field({ nullable: true })
     product_id?: string
 
-    @Field()
+    @Field({ nullable: true })
     quantity?: number
-
     
 }

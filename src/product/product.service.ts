@@ -1,13 +1,14 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Products } from "./entity/product.entity";
-import { Repository } from "typeorm";
+import { Repository, UpdateEvent, UpdateResult } from "typeorm";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { QueryProductDto } from "./dto/query-product.dto";
 import { Product } from "./model/product.model";
 import { GraphqlProductDto } from "./dto/graphql-product.dto";
 import { Categories } from "src/categories/entity/category.entity";
 import { Category } from "src/categories/model/category.model";
+import { UpdateProductDto } from "./dto/graphql-updateproduct.dto";
 
 @Injectable()
 export class ProductService {
@@ -118,24 +119,15 @@ export class ProductService {
     }
 
     async createProduct(graphqlProductDto: GraphqlProductDto): Promise<Product> {
-        const { product_name, price, unit, category_id } = graphqlProductDto;
-
-        const category = await this.categoryRepository.findOne({ where: { id: category_id } });
+        const category = await this.categoryRepository.findOne({ where: { id: graphqlProductDto.category_id } });
         if (!category) {
             throw new Error('Category not found');
         }
-
-        const newProduct = this.productRepository.create({
-            product_name,
-            price,
-            unit,
-            category,
-        });
-
+        const newProduct = this.productRepository.create(graphqlProductDto);
         return this.productRepository.save(newProduct);
     }
 
-  
+
     async deleteProductById(id: string): Promise<string> {
 
         const result = await this.productRepository.delete(id);
@@ -146,43 +138,20 @@ export class ProductService {
         return 'Product deleted successfully';
     }
 
-    // async updateProducts(id: string, graphqlProductDto: GraphqlProductDto): Promise<Product> {
+    async updateProducts(id: string, graphqlProductDto: UpdateProductDto): Promise<Product> {
 
-    //     let product = await this.productRepository.findOne({ where: { id }, relations: { category: true } })
-    //     if (!product) {
-    //         throw new NotFoundException('Product not found');
-    //     }
-    //     product = {
-    //         ...product,
-    //         category_id: graphqlProductDto.category_id
-    //     }
-    //     return this.productRepository.save(product);
-    // }
-
-    async updateProducts(
-        id: string,
-        graphqlProductDto: GraphqlProductDto,
-      ): Promise<Product> {
-        const { product_name, price, unit, category_id } = graphqlProductDto;
-      
-        const productToUpdate = await this.productRepository.findOne({ where: { id }, relations: { category: true } });
-        
-        if (!productToUpdate) {
-          throw new Error('Product not found');
-        }
-      
-        const category = await this.categoryRepository.findOne({ where: { id: category_id } });
-      
+        const category = await this.categoryRepository.findOne({ where: { id: graphqlProductDto.category_id } });
         if (!category) {
-          throw new Error('Category not found');
+            throw new NotFoundException('Category not found');
         }
-      
-        productToUpdate.product_name = product_name;
-        productToUpdate.price = price;
-        productToUpdate.unit = unit;
-        productToUpdate.category = category;
-      
-        return this.productRepository.save(productToUpdate);
-      }
+        const productToUpdate = await this.productRepository.findOne({ where: { id }, relations: { category: true } });
+        if (!productToUpdate) {
+            throw new NotFoundException('Product not found');
+        }
+        const updatedFields: Partial<Product> = { ...graphqlProductDto , id};
+        await this.productRepository.update({ id }, updatedFields);
+        return await this.productRepository.findOne({ where: { id } , relations: { category: true } });
+    }
 }
+
 
