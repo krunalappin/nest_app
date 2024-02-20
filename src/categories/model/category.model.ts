@@ -11,5 +11,5 @@ export class Category {
 
     @Field(type => String)
     description?: string;
-    
+
 }

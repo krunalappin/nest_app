@@ -1,4 +1,4 @@
-import { Field, ObjectType } from "@nestjs/graphql";
+import { Field, Int, ObjectType } from "@nestjs/graphql";
 import { Category } from "src/categories/model/category.model";
 
 
@@ -6,7 +6,7 @@ import { Category } from "src/categories/model/category.model";
 export class Product {
     
     @Field(type => String)
-    id : string
+    id? : string
 
     @Field(type => String)
     product_name? : string
@@ -19,4 +19,5 @@ export class Product {
 
     @Field(() => Category , {nullable : true})
     category? : Category
+    
 }

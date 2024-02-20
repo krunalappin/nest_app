@@ -6,7 +6,5 @@ export class CreateProductDto {
     product_name: string;
     unit: string;
     price: number;
-    
-    @IsInt()
     categoryId: number;
 }

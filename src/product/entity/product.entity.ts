@@ -16,10 +16,13 @@ export class Products {
     unit : string;
 
     @Column()
+    category_id : number;
+
+    @Column()
     price : number;
 
     @ManyToOne(() => Categories, (category) => category.products)
-    @JoinColumn({name : 'category_id'})
+    @JoinColumn({name : 'category_id' })
     category : Categories;
 
     @OneToMany(() => Orders, (order) => order.product)

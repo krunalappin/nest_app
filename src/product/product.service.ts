@@ -4,11 +4,16 @@ import { Products } from "./entity/product.entity";
 import { Repository } from "typeorm";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { QueryProductDto } from "./dto/query-product.dto";
+import { Product } from "./model/product.model";
+import { GraphqlProductDto } from "./dto/graphql-product.dto";
+import { Categories } from "src/categories/entity/category.entity";
+import { Category } from "src/categories/model/category.model";
 
 @Injectable()
 export class ProductService {
     constructor(
         @InjectRepository(Products) private readonly productRepository: Repository<Products>,
+        @InjectRepository(Categories) private readonly categoryRepository: Repository<Categories>,
     ) { }
 
     async getallProducts(): Promise<Products[]> {
@@ -96,11 +101,13 @@ export class ProductService {
         return query;
     }
 
+    // ****************************************************************GRAPHQL*******************************************************************
+
     async getAllProduct(): Promise<Products[]> {
         // const products = await this.productRepository.find();
         // return products;
         return this.productRepository.find({ relations: ['category'] });
-      }
+    }
 
     async getProductById(id: string): Promise<Products> {
         const product = await this.productRepository.findOne({ where: { id }, relations: { category: true } });
@@ -110,5 +117,72 @@ export class ProductService {
         return product;
     }
 
+    async createProduct(graphqlProductDto: GraphqlProductDto): Promise<Product> {
+        const { product_name, price, unit, category_id } = graphqlProductDto;
+
+        const category = await this.categoryRepository.findOne({ where: { id: category_id } });
+        if (!category) {
+            throw new Error('Category not found');
+        }
+
+        const newProduct = this.productRepository.create({
+            product_name,
+            price,
+            unit,
+            category,
+        });
+
+        return this.productRepository.save(newProduct);
+    }
+
+  
+    async deleteProductById(id: string): Promise<string> {
+
+        const result = await this.productRepository.delete(id);
+        if (result.affected === 0) {
+            throw new NotFoundException('Product not found');
+        }
+
+        return 'Product deleted successfully';
+    }
+
+    // async updateProducts(id: string, graphqlProductDto: GraphqlProductDto): Promise<Product> {
+
+    //     let product = await this.productRepository.findOne({ where: { id }, relations: { category: true } })
+    //     if (!product) {
+    //         throw new NotFoundException('Product not found');
+    //     }
+    //     product = {
+    //         ...product,
+    //         category_id: graphqlProductDto.category_id
+    //     }
+    //     return this.productRepository.save(product);
+    // }
+
+    async updateProducts(
+        id: string,
+        graphqlProductDto: GraphqlProductDto,
+      ): Promise<Product> {
+        const { product_name, price, unit, category_id } = graphqlProductDto;
+      
+        const productToUpdate = await this.productRepository.findOne({ where: { id }, relations: { category: true } });
+        
+        if (!productToUpdate) {
+          throw new Error('Product not found');
+        }
+      
+        const category = await this.categoryRepository.findOne({ where: { id: category_id } });
+      
+        if (!category) {
+          throw new Error('Category not found');
+        }
+      
+        productToUpdate.product_name = product_name;
+        productToUpdate.price = price;
+        productToUpdate.unit = unit;
+        productToUpdate.category = category;
+      
+        return this.productRepository.save(productToUpdate);
+      }
 }
 

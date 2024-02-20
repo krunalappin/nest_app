@@ -13,7 +13,7 @@ export class OrderController {
         private readonly userService: OrderService
     ) {}
     
-    @UseGuards(AuthGuard)
+    // @UseGuards(AuthGuard)
     @Get()
     async getAllOrder() {
         const order = await this.orderService.getAllOrder();
