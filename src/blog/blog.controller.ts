@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete ,ValidationPipe, UseP
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
-import { HttpExceptionFilter } from 'src/utils/http-exception.filter';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('blog')

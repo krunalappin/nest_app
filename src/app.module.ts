@@ -13,6 +13,10 @@ import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { GqlHttpExceptionFilter } from './utils/http-gqlexception.filter';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -39,9 +43,19 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
     BlogModule,
     AuthModule,
     SessionModule,
-     
+    SocketModule,
   ],
-  providers: [AuthController],
+  providers: [
+    AuthController , 
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GqlHttpExceptionFilter
+    }
+  ],
   
 })
 export class AppModule {}

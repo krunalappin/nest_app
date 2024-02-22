@@ -26,6 +26,12 @@ export class CategoryController {
         return category;
     }
 
+    @Get(':id')
+    async getCategoryById(@Param('id') id: number) {
+        const category = await this.categoryService.getCategoryById(id);
+        return category;
+    }
+
     @Delete(':id')
     async deleteCategory(@Param('id') id: number) {
         const result = await this.categoryService.deleteCategory(id);

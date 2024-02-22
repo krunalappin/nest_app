@@ -1,14 +1,15 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Products } from "./entity/product.entity";
-import { Repository, UpdateEvent, UpdateResult } from "typeorm";
+import { Repository } from "typeorm";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { QueryProductDto } from "./dto/query-product.dto";
 import { Product } from "./model/product.model";
 import { GraphqlProductDto } from "./dto/graphql-product.dto";
 import { Categories } from "src/categories/entity/category.entity";
-import { Category } from "src/categories/model/category.model";
 import { UpdateProductDto } from "./dto/graphql-updateproduct.dto";
+import { GraphQLError } from "graphql";
+import { GqlHttpExceptionFilter } from "src/utils/http-gqlexception.filter";
 
 @Injectable()
 export class ProductService {
@@ -139,19 +140,13 @@ export class ProductService {
     }
 
     async updateProducts(id: string, graphqlProductDto: UpdateProductDto): Promise<Product> {
-
-        const category = await this.categoryRepository.findOne({ where: { id: graphqlProductDto.category_id } });
-        if (!category) {
-            throw new NotFoundException('Category not found');
-        }
-        const productToUpdate = await this.productRepository.findOne({ where: { id }, relations: { category: true } });
-        if (!productToUpdate) {
-            throw new NotFoundException('Product not found');
-        }
-        const updatedFields: Partial<Product> = { ...graphqlProductDto , id};
-        await this.productRepository.update({ id }, updatedFields);
-        return await this.productRepository.findOne({ where: { id } , relations: { category: true } });
+            const category = await this.categoryRepository.findOne({ where: { id: graphqlProductDto.category_id } });
+            if (!category) {
+                throw new NotFoundException('Category not found');
+            }
+            const updatedFields: Partial<Product> = { ...graphqlProductDto , id};
+            const result = await this.productRepository.update({ id }, updatedFields);
+            return await this.productRepository.findOne({ where: { id } , relations: { category: true } });        
     }
 }
-
 

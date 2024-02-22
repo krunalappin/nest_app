@@ -4,6 +4,9 @@ import { CategoryService } from "src/categories/category.service";
 import { Product } from "./model/product.model";
 import { GraphqlProductDto } from "./dto/graphql-product.dto";
 import { UpdateProductDto } from "./dto/graphql-updateproduct.dto";
+import { UseFilters } from "@nestjs/common";
+import { HttpExceptionFilter } from "src/utils/http-exception.filter";
+import { GqlHttpExceptionFilter } from "src/utils/http-gqlexception.filter";
 
 
 @Resolver('Product')
@@ -35,21 +38,10 @@ export class ProductResolver {
         return 'Product deleted successfully';
     }
 
-    // @Mutation(() => Product)
-    // async updateProduct(
-    //     @Args('id', { type: () => ID }) id: string,
-    //     @Args('graphqlProductDto') graphqlProductDto: GraphqlProductDto,
-    // ): Promise<Product> {
-    //     return await this.productService.updateProducts(id, graphqlProductDto);
-    // }
-
-    // ProductResolver
 
     @Mutation(() => Product)
-    async updateProduct(
-        @Args('id', { type: () => ID }) id: string,
-        @Args('graphqlProductDto') graphqlProductDto: UpdateProductDto,
-    ): Promise<Product> {
+    // @UseFilters(new GqlHttpExceptionFilter())
+    async updateProduct(@Args('id', { type: () => ID }) id: string,@Args('graphqlProductDto') graphqlProductDto: UpdateProductDto): Promise<Product> {
         return this.productService.updateProducts(id, graphqlProductDto);
     }
 
