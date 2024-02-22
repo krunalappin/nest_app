@@ -2,9 +2,9 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { GqlHttpExceptionFilter } from './utils/http-gqlexception.filter';
 import { ValidationPipe } from '@nestjs/common';
+import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { GqlHttpExceptionFilter } from './utils/graphql-exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -13,8 +13,8 @@ async function bootstrap() {
   
   app.enableCors();
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalPipes( new ValidationPipe( {transform: true}) );
   app.useGlobalFilters(new GqlHttpExceptionFilter());
+  app.useGlobalPipes( new ValidationPipe( {transform: true}) );
   const config = new DocumentBuilder()
     .setTitle('NestJS Application')
     .setDescription('The NestJS API description')
@@ -28,3 +28,4 @@ async function bootstrap() {
   console.log(`Application is running on: ${await app.getUrl()} 🚀`);
 }
 bootstrap();
+

@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Products } from "./entity/product.entity";
 import { Repository } from "typeorm";
@@ -8,8 +8,6 @@ import { Product } from "./model/product.model";
 import { GraphqlProductDto } from "./dto/graphql-product.dto";
 import { Categories } from "src/categories/entity/category.entity";
 import { UpdateProductDto } from "./dto/graphql-updateproduct.dto";
-import { GraphQLError } from "graphql";
-import { GqlHttpExceptionFilter } from "src/utils/http-gqlexception.filter";
 
 @Injectable()
 export class ProductService {
@@ -142,7 +140,7 @@ export class ProductService {
     async updateProducts(id: string, graphqlProductDto: UpdateProductDto): Promise<Product> {
             const category = await this.categoryRepository.findOne({ where: { id: graphqlProductDto.category_id } });
             if (!category) {
-                throw new NotFoundException('Category not found');
+                throw new NotFoundException('Category not found')
             }
             const updatedFields: Partial<Product> = { ...graphqlProductDto , id};
             const result = await this.productRepository.update({ id }, updatedFields);

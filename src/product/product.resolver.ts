@@ -4,9 +4,6 @@ import { CategoryService } from "src/categories/category.service";
 import { Product } from "./model/product.model";
 import { GraphqlProductDto } from "./dto/graphql-product.dto";
 import { UpdateProductDto } from "./dto/graphql-updateproduct.dto";
-import { UseFilters } from "@nestjs/common";
-import { HttpExceptionFilter } from "src/utils/http-exception.filter";
-import { GqlHttpExceptionFilter } from "src/utils/http-gqlexception.filter";
 
 
 @Resolver('Product')

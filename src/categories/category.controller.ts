@@ -10,12 +10,9 @@ export class CategoryController {
     ) {}
 
     @Get()
-    async getAllCategories(): Promise<Categories[]> {
-        const categories = await this.categoryService.getAllCategories();
-        if(!categories || categories.length === 0) {
-            throw new Error('Categories not found');
-        }
-        return categories
+    async getAllCategorie(): Promise<Categories[]> {
+        const categories = await this.categoryService.getAllCat();
+        return categories;
     }
 
     @Post()

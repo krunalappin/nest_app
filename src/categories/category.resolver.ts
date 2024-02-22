@@ -10,7 +10,7 @@ export class CategoryResolver {
 
     @Query(() => [Category])
     async getAllCategories(){
-        const categories = await this.categoryService.getAllCategories();
+        const categories = await this.categoryService.getAllCat();
         return categories;
     }
 

@@ -9,7 +9,7 @@ export class CategoryService {
         @InjectRepository(Categories) private readonly categoryRepository: Repository<Categories>,
     ) { }
 
-    async getAllCategories(): Promise<Categories[]> {
+    async getAllCat(): Promise<Categories[]> {
         const categories = await this.categoryRepository.query(`SELECT * FROM categories`);
         if (!categories || categories.length === 0) {
             throw new NotFoundException('Categories not found');

@@ -15,8 +15,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { GqlHttpExceptionFilter } from './utils/http-gqlexception.filter';
-import { SocketModule } from './socket/socket.module';
+import { MessageModule } from './message/message.module';
+import { GqlHttpExceptionFilter } from './utils/graphql-exception';
 
 @Module({
   imports: [
@@ -34,6 +34,7 @@ import { SocketModule } from './socket/socket.module';
       autoSchemaFile: 'schema.gql',
       path: '/api/graphql',
       driver: ApolloDriver,
+      context: ({ req }) => ({ req }),
     }),
     OrderModule,
     ProductModule,
@@ -43,7 +44,7 @@ import { SocketModule } from './socket/socket.module';
     BlogModule,
     AuthModule,
     SessionModule,
-    SocketModule,
+    MessageModule,
   ],
   providers: [
     AuthController , 
