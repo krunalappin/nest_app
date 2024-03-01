@@ -1,34 +1,40 @@
-import { ConnectedSocket, MessageBody, OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { SocketService } from './socket.service';
-import { Request, UseGuards } from '@nestjs/common';
-import { CreateMessageDto } from './dto/create-message.dto';
-import { SocketAuthGuard } from 'src/auth/auth.socket.guard';
-import { User } from 'src/user/entity/user.entity';
+import { Server, Socket } from 'socket.io';
+import { RoomService } from './rooms/room.service';
+import { Rooms } from './rooms/entity/room.entity';
 
 // @UseGuards(SocketAuthGuard)
 @WebSocketGateway()
-export class SocketGateway implements OnGatewayConnection {
+export class SocketGateway implements OnGatewayConnection , OnGatewayDisconnect  {
 
   @WebSocketServer()
-  client: Server
+  server: Server
 
   constructor(
-    private readonly socketService: SocketService
+    private readonly socketService: SocketService,
+    private readonly roomService: RoomService
   ) { }
 
   
-  handleConnection(client: any, user: User) {
-    console.log('Client connected: ', client.id);
+  handleConnection(client: Socket) {
     client.emit('connected', `Welcome to the chat! ${client.id}`);
     return this.socketService.create(client);
   }
 
+  handleDisconnect(client: Socket) {
+    client.emit('disconnected', `Goodbye! ${client.id}`);
+    return this.socketService.disconnectSocket(client);
+  }
+
+  @SubscribeMessage('createChat')
+  handleCreateChat(@ConnectedSocket() client: Socket , @MessageBody() { senderId, receiverId }: { senderId: number, receiverId: number })  {
+    const room = this.roomService.createRoom(senderId,receiverId);
+  }
 
   @SubscribeMessage('message')
   handleMessage(@MessageBody() message: string, @ConnectedSocket() client: Socket): void {
     client.broadcast.emit('message', message + ' ' + client.id);
-
   }
 
   @SubscribeMessage('join')

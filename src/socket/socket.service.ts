@@ -2,37 +2,60 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Sockets } from './entity/socket.entity';
 import { Repository } from 'typeorm';
-import { CreateMessageDto } from './dto/create-message.dto';
 import { User } from 'src/user/entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { Socket } from 'socket.io';
 import { jwtConstants } from 'src/auth/constants';
+
 
 @Injectable()
 export class SocketService {
-    
+
     constructor(
         @InjectRepository(Sockets) private readonly socketRepository: Repository<Sockets>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
         private jwtService: JwtService,
     ) { }
 
-    async create(client: any) {
-        const token = client.handshake.headers.authorization;
-        
-            // const payload = await this.jwtService.verify(token , {
-            //     secret : jwtConstants.secret
-            // });
-            // console.log(':: ========= :: > payload < :: ========= :: ', payload);
+    async create(client: Socket) {
+        try {
+            const token = client.handshake.headers.authorization;
+            if (!token) {
+                throw new Error('Authorization token not provided');
+            }
+            const decodedToken = await this.jwtService.verifyAsync(
+                token,
+                { secret: jwtConstants.secret }
+            )
+            const userId = decodedToken.sub;
 
-            // let socketSession = await this.socketRepository.findOneBy({ user : payload.id});
-            // console.log(socketSession.user);
-            
-            // if(!socketSession.user === payload.sub || null) {
-            //     socketSession = new Sockets();
-            //     socketSession.user = payload.sub;
-            // }
-            // socketSession.socketId = client.id;
+            let sockets = await this.socketRepository.findOne({ where: { userId } });
+                
+                
+            if (sockets) {
+                sockets.socketId = client.id;
+                sockets.status = 'online';
+                await this.socketRepository.save(sockets);
+                console.log(`User ${userId} connected with socket id ${client.id}`);
+            } else {
+                await this.socketRepository.save({ userId, socketId: client.id });
+                console.log(`User ${userId} connected with socket id ${client.id}`);
+            }
+        } catch (error) {
+            console.error('Authentication error:', error.message);
+            client.disconnect(true);
+        }
 
-            // return await this.socketRepository.save(socketSession);
     }
+
+    async disconnectSocket(client: Socket) {
+
+        const existingSocket = await this.socketRepository.findOne({ where: { socketId: client.id } });
+        if (existingSocket) {
+            existingSocket.status = 'offline';
+            existingSocket.updatedAt = new Date();
+            await this.socketRepository.save(existingSocket);
+        }
+    }
+
 }

@@ -3,12 +3,13 @@ import { Orders } from "src/order/entity/order.entity";
 import { Products } from "src/product/entity/product.entity";
 import { UserSession } from "src/session/session.entity";
 import { Sockets } from "src/socket/entity/socket.entity";
+import { Rooms } from "src/socket/rooms/entity/room.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
 export class User {
-  
+
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -31,7 +32,7 @@ export class User {
     @Column({ nullable: true })
     website: string;
 
-    @Column({ nullable: true , unique: true})
+    @Column({ nullable: true, unique: true })
     phoneNumber: string;
 
     @OneToMany(() => Blog, (blog) => blog.user)
@@ -46,9 +47,15 @@ export class User {
     @OneToMany(() => Sockets, (socket) => socket.user)
     socket: Sockets[];
 
+    @OneToMany(() => Rooms, (room) => room.sender)
+    sender: Rooms[];
+
+    @OneToMany(() => Rooms, (room) => room.receiver)
+    receiver: Rooms[];
+
 
     constructor(partial: Partial<User>) {
         Object.assign(this, partial);
     }
-    
+
 }

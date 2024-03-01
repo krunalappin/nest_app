@@ -12,6 +12,16 @@ export class Sockets {
     @Column()
     socketId: string
 
+    @Column()
+    userId: number
+
+    @Column({
+        type: 'enum',
+        enum: ['online', 'offline'],
+        default: 'online',
+    })
+    status: string
+
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date
 

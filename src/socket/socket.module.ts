@@ -6,6 +6,8 @@ import { User } from 'src/user/entity/user.entity';
 import { Sockets } from './entity/socket.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { SessionModule } from 'src/session/session.module';
+import { RoomModule } from './rooms/room.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { SessionModule } from 'src/session/session.module';
     SessionModule,
     TypeOrmModule.forFeature([Sockets]),
     TypeOrmModule.forFeature([User]),
+    RoomModule,
+    ChatModule
   ],
   providers: [SocketGateway, SocketService],
   exports: [SocketService]
