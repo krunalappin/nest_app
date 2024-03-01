@@ -42,9 +42,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Query {
+  getAllUsers: [User!]!
   getAllOrders: [Order!]!
   getOrderById(id: String!): Order!
-  getAllUsers: [User!]!
   products: [Product!]!
   product(id: String!): Product!
   getAllCategories: [Category!]!

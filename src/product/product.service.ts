@@ -140,7 +140,7 @@ export class ProductService {
     async updateProducts(id: string, graphqlProductDto: UpdateProductDto): Promise<Product> {
             const category = await this.categoryRepository.findOne({ where: { id: graphqlProductDto.category_id } });
             if (!category) {
-                throw new NotFoundException('Category not found')
+                throw new NotFoundException('Category not found');
             }
             const updatedFields: Partial<Product> = { ...graphqlProductDto , id};
             const result = await this.productRepository.update({ id }, updatedFields);

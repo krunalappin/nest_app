@@ -4,8 +4,6 @@ import { UserService } from "./user.service";
 import { User } from "./entity/user.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserResolver } from "./user.resolver";
-import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 
 
 @Module({

@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Res, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Res, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entity/user.entity";
 import { Response } from "express";
+import { AuthGuard } from "src/auth/auth.guard";
 
 @Controller('/users')
 export class UserController {

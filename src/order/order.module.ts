@@ -5,7 +5,6 @@ import { OrderService } from "./order.service";
 import { OrderController } from "./order.controller";
 import { AuthModule } from "src/auth/auth.module";
 import { SessionModule } from "src/session/session.module";
-import { UserModule } from "src/user/user.module";
 import { User } from "src/user/entity/user.entity";
 import { Products } from "src/product/entity/product.entity";
 import { Categories } from "src/categories/entity/category.entity";

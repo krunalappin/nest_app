@@ -1,11 +1,12 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { OrderService } from "./order.service";
 import { Order } from "./model/order.model";
-import { CreateOrderDto } from "./dto/create-order.dto";
 import { GraphqlOrderDto } from "./dto/graphql-order.dto";
 import { UpdateGraphqlOrderDto } from "./dto/graphql-updateorder.dto";
-import { retry } from "rxjs";
+import { UseGuards } from "@nestjs/common";
+import { AuthGuard } from "src/auth/auth.guard";
 
+@UseGuards(AuthGuard)
 @Resolver('Order')
 export class OrderResolver {
 

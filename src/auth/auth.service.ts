@@ -11,7 +11,7 @@ export class AuthService {
     constructor(
         private jwtService: JwtService,
         private readonly userService: UserService,
-        private readonly sessionService: SessionService
+        private readonly sessionService: SessionService,
     ) { }
 
 
@@ -29,12 +29,9 @@ export class AuthService {
         const payload = { username: user.username, sub: user.id, email: user.email };
         const access_token = await this.jwtService.sign(payload);
 
-        await this.sessionService.createOrUpdateSession(user, access_token , ip);
+        await this.sessionService.createOrUpdateSession(user, access_token, ip);
 
-        return {
-            access_token,
-            user
-        }
+        return { user, access_token }
     }
     
 }

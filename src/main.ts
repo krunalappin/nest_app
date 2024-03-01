@@ -4,7 +4,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './utils/http-exception.filter';
-import { GqlHttpExceptionFilter } from './utils/graphql-exception';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -12,9 +11,8 @@ async function bootstrap() {
   });
   
   app.enableCors();
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalFilters(new GqlHttpExceptionFilter());
   app.useGlobalPipes( new ValidationPipe( {transform: true}) );
+  app.useGlobalFilters(new HttpExceptionFilter() );
   const config = new DocumentBuilder()
     .setTitle('NestJS Application')
     .setDescription('The NestJS API description')

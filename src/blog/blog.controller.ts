@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete ,ValidationPipe, UsePipes, BadRequestException, UseFilters, HttpException, HttpStatus, Put, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete ,ValidationPipe, UsePipes, BadRequestException, UseFilters, HttpException, HttpStatus, Put, ParseIntPipe, UseGuards, NotFoundException } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Blog } from './entities/blog.entity';
 
 @Controller('blog')
 export class BlogController {
@@ -29,11 +30,8 @@ export class BlogController {
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id',ParseIntPipe) id: number ) {
-    const data = this.blogService.findOne(+id);
-    if(!data){
-      throw new HttpException('Blog Not found', HttpStatus.NOT_FOUND);
-    }
+  findOne(@Param('id') id: number ) : Promise<Blog> {
+    const data = this.blogService.findOne(id);
     return data;
   }
 

@@ -20,15 +20,13 @@ export class OrderService {
         @InjectRepository(Categories) private readonly categoryRepository: Repository<Categories>,
     ) { }
 
-    async getAllOrder(): Promise<Orders[]> {
+    async getoredrs(): Promise<Orders[]> {
         const query = `select orders.id , products.product_name,orders.quantity,products.price, products.unit, orders.total_price , u.username , orders.created_at  from orders
         left join products on orders.product_id = products.id
         left join "user" u on orders.user_id = u."id"
         `;
         const result = await this.orderRepository.query(query);
-        if (!result.length || result.length === 0) {
-            return [];
-        }
+        console.log(':: ========= :: > result < :: ========= :: ',result);
         return result;
     }
 

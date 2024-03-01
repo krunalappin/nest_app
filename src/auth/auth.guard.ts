@@ -13,14 +13,15 @@ import { SessionService } from 'src/session/session.service';
 export class AuthGuard implements CanActivate {
 
     constructor(
-        private jwtService: JwtService ,
+        private readonly jwtService: JwtService,
         private readonly sessionService: SessionService,
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
+       
         const request = context.switchToHttp().getRequest();
         const token = this.extractTokenFromHeader(request);
-        if (!token) {
+        if (!token && token === undefined) {
             throw new UnauthorizedException('Token not found');
         }
 
@@ -37,6 +38,7 @@ export class AuthGuard implements CanActivate {
                 }
             );
             request['user'] = payload;
+            
         } catch {
             throw new UnauthorizedException('User Unauthorized from Guard');
         }
@@ -47,6 +49,7 @@ export class AuthGuard implements CanActivate {
         const [type, token] = request.headers.authorization?.split(' ') ?? [];
         return type === 'Bearer' ? token : undefined;
     }
+
 
     private extractTokenFromCookie(request: Request): string | undefined {
         return request.cookies.token

@@ -37,9 +37,8 @@ export class ProductResolver {
 
 
     @Mutation(() => Product)
-    // @UseFilters(new GqlHttpExceptionFilter())
     async updateProduct(@Args('id', { type: () => ID }) id: string,@Args('graphqlProductDto') graphqlProductDto: UpdateProductDto): Promise<Product> {
-        return this.productService.updateProducts(id, graphqlProductDto);
+            return this.productService.updateProducts(id, graphqlProductDto);
     }
 
 }

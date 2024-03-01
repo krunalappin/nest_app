@@ -6,6 +6,7 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { AuthGuard } from "./auth.guard";
 import { SessionModule } from "src/session/session.module";
+import { SocketAuthGuard } from "./auth.socket.guard";
 
 @Module({
     imports : [
@@ -18,7 +19,7 @@ import { SessionModule } from "src/session/session.module";
         })
     ],
     controllers : [AuthController],
-    providers : [AuthService , AuthGuard],
-    exports : [AuthService , AuthGuard]
+    providers : [AuthService , AuthGuard , SocketAuthGuard],
+    exports : [AuthService , AuthGuard , SocketAuthGuard]
 })
 export class AuthModule{}

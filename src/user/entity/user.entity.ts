@@ -2,6 +2,7 @@ import { Blog } from "src/blog/entities/blog.entity";
 import { Orders } from "src/order/entity/order.entity";
 import { Products } from "src/product/entity/product.entity";
 import { UserSession } from "src/session/session.entity";
+import { Sockets } from "src/socket/entity/socket.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -41,6 +42,9 @@ export class User {
 
     @OneToMany(() => Orders, (order) => order.user)
     order: Orders[];
+
+    @OneToMany(() => Sockets, (socket) => socket.user)
+    socket: Sockets[];
 
 
     constructor(partial: Partial<User>) {

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -36,7 +36,11 @@ export class BlogService {
   }
 
   findOne(id: number) : Promise<Blog> {
-    return this.blogRepository.findOneBy({id})
+    const blog = this.blogRepository.findOneBy({id})
+    if(!blog){
+      throw new NotFoundException(`Blog Not found from this id ${id}`);
+    }
+    return blog;
   }
 
   async update(id: number, updateBlogDto: UpdateBlogDto): Promise<Blog> {
