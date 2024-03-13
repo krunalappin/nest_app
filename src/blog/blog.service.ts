@@ -31,8 +31,8 @@ export class BlogService {
     
   }
 
-  findAll(): Promise<Blog[]> {
-    return this.blogRepository.find({})
+  async getAllBlog(): Promise<any> {
+    return await this.blogRepository.find()
   }
 
   findOne(id: number) : Promise<Blog> {

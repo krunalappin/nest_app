@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete ,ValidationPipe, UsePipes, BadRequestException, UseFilters, HttpException, HttpStatus, Put, ParseIntPipe, UseGuards, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete ,ValidationPipe, UsePipes, HttpException, HttpStatus, Put, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
@@ -9,40 +9,31 @@ import { Blog } from './entities/blog.entity';
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
-  // @UseGuards(AuthGuard)
   @Post()
   @UsePipes(new ValidationPipe({transform: true}))
-  // @UseFilters(new HttpExceptionFilter())
   async create(@Body() createBlogDto: CreateBlogDto) {
     const data = await this.blogService.create(createBlogDto);
     return data;
   }
 
-  @UseGuards(AuthGuard)
   @Get()
   async findAll() {
-    const data = await this.blogService.findAll();
-    if(!data){
-      throw new HttpException('Blog Not found', HttpStatus.NOT_FOUND);
-    }
+    const data = await this.blogService.getAllBlog();
     return data;
   }
 
-  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: number ) : Promise<Blog> {
     const data = this.blogService.findOne(id);
     return data;
   }
 
-  @UseGuards(AuthGuard)
   @Put(':id')
   @UsePipes(new ValidationPipe({transform: true}))
   update(@Param('id' ,ParseIntPipe) id: number, @Body() updateBlogDto: UpdateBlogDto) {
     return this.blogService.update(id, updateBlogDto);
   }
 
-  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     const data = this.blogService.remove(id);

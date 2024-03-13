@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Sockets } from './entity/socket.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entity/user.entity';
-import { JwtService } from '@nestjs/jwt';
 import { Socket } from 'socket.io';
 import { jwtConstants } from 'src/auth/constants';
-
+import { WsException } from '@nestjs/websockets';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class SocketService {
@@ -14,24 +14,20 @@ export class SocketService {
     constructor(
         @InjectRepository(Sockets) private readonly socketRepository: Repository<Sockets>,
         @InjectRepository(User) private readonly userRepository: Repository<User>,
-        private jwtService: JwtService,
+        private readonly authService: AuthService
     ) { }
 
     async create(client: Socket) {
         try {
+
             const token = client.handshake.headers.authorization;
-            if (!token) {
-                throw new Error('Authorization token not provided');
+            const user = await this.authService.verifyToken(token);
+            if (!user) {
+                client.disconnect();
             }
-            const decodedToken = await this.jwtService.verifyAsync(
-                token,
-                { secret: jwtConstants.secret }
-            )
-            const userId = decodedToken.sub;
+            const userId = user.sub;
 
             let sockets = await this.socketRepository.findOne({ where: { userId } });
-                
-                
             if (sockets) {
                 sockets.socketId = client.id;
                 sockets.status = 'online';
@@ -49,7 +45,6 @@ export class SocketService {
     }
 
     async disconnectSocket(client: Socket) {
-
         const existingSocket = await this.socketRepository.findOne({ where: { socketId: client.id } });
         if (existingSocket) {
             existingSocket.status = 'offline';

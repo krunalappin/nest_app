@@ -4,15 +4,17 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { SocketAuthGuard } from './auth/auth.socket.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn'],
   });
-  
+
   app.enableCors();
-  app.useGlobalPipes( new ValidationPipe( {transform: true}) );
-  app.useGlobalFilters(new HttpExceptionFilter() );
+  // app.useWebSocketAdapter(new SocketAuthGuard(app));
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalFilters(new HttpExceptionFilter());
   const config = new DocumentBuilder()
     .setTitle('NestJS Application')
     .setDescription('The NestJS API description')

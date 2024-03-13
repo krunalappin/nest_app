@@ -1,7 +1,9 @@
 import { Body, Controller, HttpCode, HttpStatus, InternalServerErrorException, Post, Req, Res } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Response } from "express";
+import { Public } from "src/constants/message-constants";
 
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) { }

@@ -3,12 +3,14 @@ import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entity/user.entity";
 import { Response } from "express";
-import { AuthGuard } from "src/auth/auth.guard";
+import { Public } from "src/constants/message-constants";
 
+@Public()
 @Controller('/users')
 export class UserController {
    constructor(private readonly userService:UserService){}
 
+   
    @Post()
    @UsePipes(new ValidationPipe({transform:true}))
    async createUser(@Body() createUserDto : CreateUserDto) : Promise<User>{

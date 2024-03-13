@@ -16,7 +16,7 @@ import { ChatModule } from './chat/chat.module';
     TypeOrmModule.forFeature([Sockets]),
     TypeOrmModule.forFeature([User]),
     RoomModule,
-    ChatModule
+    ChatModule,
   ],
   providers: [SocketGateway, SocketService],
   exports: [SocketService]

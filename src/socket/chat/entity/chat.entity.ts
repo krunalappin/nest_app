@@ -13,7 +13,7 @@ export class Chats {
    roomId: string
 
    @Column()
-   messages: string
+   message: string
 
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
    createdAt: Date

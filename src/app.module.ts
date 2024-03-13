@@ -15,6 +15,8 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { LoggerHelper } from './logger/logger.service';
 import { SocketModule } from './socket/socket.module';
 import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { AuthGuard } from './auth/auth.guard';
+import { SocketAuthGuard } from './auth/auth.socket.guard';
 
 @Module({
   imports: [
@@ -50,8 +52,11 @@ import { HttpExceptionFilter } from './utils/http-exception.filter';
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
-    
-    LoggerHelper
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    LoggerHelper,
     
   ],
   

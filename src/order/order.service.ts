@@ -26,7 +26,6 @@ export class OrderService {
         left join "user" u on orders.user_id = u."id"
         `;
         const result = await this.orderRepository.query(query);
-        console.log(':: ========= :: > result < :: ========= :: ',result);
         return result;
     }
 

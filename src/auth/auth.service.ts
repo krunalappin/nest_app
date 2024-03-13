@@ -33,5 +33,10 @@ export class AuthService {
 
         return { user, access_token }
     }
+
+    async verifyToken(token: string): Promise<any> {
+        return this.jwtService.verify(token);
+    }
     
 }
+
