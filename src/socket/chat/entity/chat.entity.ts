@@ -13,6 +13,12 @@ export class Chats {
    roomId: string
 
    @Column()
+   fromUser: number
+
+   @Column()
+   toUser: number
+
+   @Column()
    message: string
 
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

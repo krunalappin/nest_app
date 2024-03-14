@@ -18,17 +18,15 @@ export class RoomService {
 
     async createRoom(senderId: number, receiverId: number, client: Socket): Promise<Rooms | string> {
 
-        const userId = client.data.userId
-        
         const existingRoom = await this.findRoom(senderId, receiverId);
+
         if (existingRoom) {
-            client.join(existingRoom.id);
+            client.emit('createChat',existingRoom.id);
             return existingRoom;
         }
         const room = this.roomRepository.create({ senderId, receiverId });
-        console.log(':: ========= :: > room < :: ========= :: ', room);
         await this.roomRepository.save(room);
-        client.emit('chatRoomCreated', room);
+        client.emit('createChat', room.id);
         return room;
     }
 

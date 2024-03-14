@@ -2,54 +2,43 @@ import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect,
 import { SocketService } from './socket.service';
 import { Server, Socket } from 'socket.io';
 import { RoomService } from './rooms/room.service';
-import { Rooms } from './rooms/entity/room.entity';
-import { ChatService } from './chat/chat.service';
 import { UseGuards } from '@nestjs/common';
 import { SocketAuthGuard } from 'src/auth/auth.socket.guard';
-import { Public } from 'src/constants/message-constants';
+import { CreateChatDto } from './chat/dto/create-chat.dto';
 
 @WebSocketGateway()
-// @Public()
 @UseGuards(SocketAuthGuard)
-export class SocketGateway implements OnGatewayConnection , OnGatewayDisconnect  {
-  
+export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
+
   @WebSocketServer()
   server: Server
-  
+
   constructor(
     private readonly socketService: SocketService,
     private readonly roomService: RoomService,
-    private readonly chatService: ChatService
-    ) { }
+  ) { }
+
+  handleConnection(client: Socket) {
     
-    handleConnection(client: Socket) {
-      client.emit('connected', `Welcome to the chat! ${client.id}`);
-      return this.socketService.create(client);
-    }
-    
-    handleDisconnect(client: Socket) {
-      client.emit('disconnected', `Goodbye! ${client.id}`);
-      return this.socketService.disconnectSocket(client);
-    }
-    
+    return this.socketService.create(client);
+  }
+
+  handleDisconnect(client: Socket) {
+    return this.socketService.disconnectSocket(client);
+  }
+
   @SubscribeMessage('createChat')
-  handleCreateChat(@ConnectedSocket() client: Socket , @MessageBody() { senderId, receiverId }: { senderId: number, receiverId: number })  {
-     return this.roomService.createRoom(senderId,receiverId,client);
+  handleCreateChat(@ConnectedSocket() client: Socket, @MessageBody() { senderId, receiverId }: { senderId: number, receiverId: number }) {
+    return this.roomService.createRoom(senderId, receiverId, client);
+  }
+  @SubscribeMessage('join')
+  handleJoin(@ConnectedSocket() client: Socket, @MessageBody() { roomId }: { roomId: string }) {
+    return this.socketService.handleJoinRoom(client, { roomId });
   }
 
   @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: string, @ConnectedSocket() client: Socket ) {
-    const roomId = client.handshake.query.roomId;
-    client.to(roomId).emit('message', message + ' ' + client.id);
-    return this.chatService.createChat(message, client);
-  }
-
-  @SubscribeMessage('join')
-  handleJoin(@ConnectedSocket() client: Socket): void {
-    const roomId = client.handshake.query.roomId as string;
-    client.join(roomId);
-    client.emit('joined', `You joined ${roomId}`);
-    client.to(roomId).emit('joined', `${client.id} joined ${roomId}`);
+  handleMessage(@MessageBody() createChatDto: CreateChatDto, @ConnectedSocket() client: Socket) {
+    return this.socketService.handleMessages(createChatDto, client);
   }
 
 }

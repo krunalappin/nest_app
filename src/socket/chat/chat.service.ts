@@ -11,9 +11,9 @@ export class ChatService {
         @InjectRepository(Chats) private readonly chatRepository: Repository<Chats>
     ) {}
 
-    async createChat(message: string ,client: Socket) {
-        const roomId = client.handshake.query.roomId as string;
-        const chat = this.chatRepository.create({ roomId, message });
+    async createChat(createChatDto : CreateChatDto, client: Socket) {
+        const fromUser = client.data.userId
+        const chat = this.chatRepository.create({ ...createChatDto, fromUser });
         await this.chatRepository.save(chat);
     }
 
