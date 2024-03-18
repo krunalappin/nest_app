@@ -23,3 +23,4 @@ import { SocketAuthGuard } from "./auth.socket.guard";
     exports : [AuthService , AuthGuard , SocketAuthGuard]
 })
 export class AuthModule{}
+

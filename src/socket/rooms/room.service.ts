@@ -1,15 +1,16 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Rooms } from "./entity/room.entity";
 import { Repository } from "typeorm";
-import { User } from "src/user/entity/user.entity";
 import { Socket } from "socket.io";
+import { SocketService } from "../socket.service";
 
 @Injectable()
 export class RoomService {
     constructor(
         @InjectRepository(Rooms) private readonly roomRepository: Repository<Rooms>,
-        @InjectRepository(User) private readonly userRepository: Repository<User>
+        @Inject(forwardRef(() => SocketService))
+        private readonly socketService: SocketService
     ) { }
 
     async findRoom(senderId: number, receiverId: number): Promise<Rooms | undefined> {
@@ -21,7 +22,7 @@ export class RoomService {
         const existingRoom = await this.findRoom(senderId, receiverId);
 
         if (existingRoom) {
-            client.emit('createChat',existingRoom.id);
+            client.emit('createChat', existingRoom.id);
             return existingRoom;
         }
         const room = this.roomRepository.create({ senderId, receiverId });
@@ -30,5 +31,13 @@ export class RoomService {
         return room;
     }
 
-
+    async verifyJoinUser(client: Socket , roomId: string) {
+        const user = client.data.userId || null;
+        const room = await this.roomRepository.findOne({ where: { id : roomId } });
+        if(user !== room.senderId && user !== room.receiverId) {
+            return client.emit('joined', 'User not authorized to join this room');
+            // return this.socketService.disconnectSocket(user);
+        }
+        return true;
+    }
 }

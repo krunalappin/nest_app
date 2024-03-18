@@ -1,13 +1,13 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Rooms } from "./entity/room.entity";
 import { RoomService } from "./room.service";
-import { User } from "src/user/entity/user.entity";
+import { SocketModule } from "../socket.module";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Rooms]),
-        TypeOrmModule.forFeature([User])
+        forwardRef(() => SocketModule),
     ],
     controllers: [],
     providers: [RoomService],

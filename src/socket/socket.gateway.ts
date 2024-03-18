@@ -19,8 +19,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) { }
 
   handleConnection(client: Socket) {
-    
-    return this.socketService.create(client);
+    return this.socketService.createSocket(client);
   }
 
   handleDisconnect(client: Socket) {
@@ -39,6 +38,11 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('message')
   handleMessage(@MessageBody() createChatDto: CreateChatDto, @ConnectedSocket() client: Socket) {
     return this.socketService.handleMessages(createChatDto, client);
+  }
+
+  @SubscribeMessage('deleteMessage')
+  handleDeleteMessage(@MessageBody() chatId: number) {
+    return this.socketService.handleDeleteMessage(chatId);
   }
 
 }

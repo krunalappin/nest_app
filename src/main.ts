@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './utils/http-exception.filter';
 import { SocketAuthGuard } from './auth/auth.socket.guard';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -23,8 +24,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
+  const logo = fs.readFileSync('nest-js.txt', 'utf-8');
   await app.listen(3000);
+  console.log(logo);
   console.log(`Application is running on: ${await app.getUrl()} 🚀`);
 }
 bootstrap();
