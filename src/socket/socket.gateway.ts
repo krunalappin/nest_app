@@ -30,6 +30,7 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleCreateChat(@ConnectedSocket() client: Socket, @MessageBody() { senderId, receiverId }: { senderId: number, receiverId: number }) {
     return this.roomService.createRoom(senderId, receiverId, client);
   }
+
   @SubscribeMessage('join')
   handleJoin(@ConnectedSocket() client: Socket, @MessageBody() { roomId }: { roomId: string }) {
     return this.socketService.handleJoinRoom(client, { roomId });
@@ -40,9 +41,25 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return this.socketService.handleMessages(createChatDto, client);
   }
 
-  @SubscribeMessage('deleteMessage')
-  handleDeleteMessage(@MessageBody() chatId: number) {
-    return this.socketService.handleDeleteMessage(chatId);
+  @SubscribeMessage('deleteMessages')
+  handleDeleteMessage(@MessageBody() { id }: { id: string }, @ConnectedSocket() client: Socket) {
+    return this.socketService.handleDeleteMessage({ id }, client);
+  }
+
+  @SubscribeMessage('getAllMessages')
+  handleGetMessages(@MessageBody() { roomId }: { roomId: string }, @ConnectedSocket() client: Socket) {
+    return this.socketService.handleGetMessages({ roomId }, client);
+  }
+
+  @SubscribeMessage('unReadMessages')
+  handleUnReadMessages(@MessageBody() { roomId }: { roomId: string }, @ConnectedSocket() client: Socket) {
+    return this.socketService.handleUnReadMessages({ roomId }, client);
+  }
+
+  @SubscribeMessage('makeAsRead')
+  handleMakeAsRead(@MessageBody() payload: { unreadMessageIds: string[] }, @ConnectedSocket() client: Socket) {
+    const { unreadMessageIds } = payload;
+    return this.socketService.handleMakeAsRead(unreadMessageIds, client);
   }
 
 }

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Chats } from "./entity/chat.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CreateChatDto } from "./dto/create-chat.dto";
 import { Socket } from "socket.io";
 
@@ -19,7 +19,7 @@ export class ChatService {
             const saveChat = await this.chatRepository.save(chat);
 
             if (status === 'delivered') {
-                saveChat.read = true;
+                saveChat.isRead = true;
                 saveChat.readAt = new Date();
                 await this.chatRepository.save(saveChat);
             }
@@ -30,27 +30,50 @@ export class ChatService {
     }
 
     //when touser join room.
-    async markChatAsRead(user: number, roomId: string) {
+    async markChatAsRead(unreadMessageIds: string[]) {
         await this.chatRepository.update(
-            { roomId, toUser: user, status:'delivered' }, 
-            { read: true, readAt: new Date()}
+            { id : In(unreadMessageIds) },
+            { isRead: true, readAt: new Date(), status: 'read' }
         );
+        // await this.chatRepository.update(
+        //     { roomId, toUser: user, status: 'delivered' },
+        //     { isRead: true, readAt: new Date(), status: 'read' }
+        // );
+    }
+
+    //Mark as read updated data
+    async getUpdatedMessages(unreadMessageIds: string[]) {
+        return await this.chatRepository.findByIds(unreadMessageIds);
     }
 
     //when touser connect socket
     async updateChatStatus(userId: number) {
         await this.chatRepository.update(
-            { toUser: userId, status: 'sent' }, 
+            { toUser: userId, status: 'sent' },
             { status: 'delivered' }
         );
     }
 
-    async deleteChatMessage(chatId: number) {
-        await this.chatRepository.delete(chatId);
+    async deleteChatMessage(id: string, client: Socket) {
+        const deletedMessage = await this.chatRepository.softDelete({ id });
+        const deleted = deletedMessage ? await this.getChatById(id) : null;
+        return deleted;
     }
 
-    async getChatsByRoomId(roomId) {
-        return await this.chatRepository.find(roomId);
+    async getChatById(id: string): Promise<Chats | null> {
+        const chat = await this.chatRepository.findOne({ where: { id }, withDeleted: true });
+        return chat;
+    }
+
+    async getMessages(roomId: string) {
+        const chat = await this.chatRepository.find({ where: { roomId }, take: 20 });
+        return chat;
+    }
+
+    async findUnreadMessages(roomId: string, client: Socket) {
+        const chat = await this.chatRepository.find({ where: { roomId, toUser: client.data.userId, isRead: false }, select: ['id']});
+        const unreadData = chat.map(chat => chat.id);
+        return unreadData;
     }
 
 }

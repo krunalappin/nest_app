@@ -93,9 +93,7 @@ export class SocketService {
             activeRooms.push(newRoom);
         }
         socketRoomMap[user] = roomId;
-
-        await this.chatService.markChatAsRead(user, roomId);
-
+        // await this.chatService.markChatAsRead(user, roomId);
         client.join(roomId);
         client.emit('joined', `On joined ::: ${roomId}`);
         client.to(roomId).emit('joined', `${client.id} joined ${roomId}`);
@@ -126,14 +124,14 @@ export class SocketService {
 
         // If User Not Join In Room
         if (!room || !room.userId.includes(user)) {
-            client.emit('message', message + ' ' + client.id);
+            client.emit('message', {message , userId : user});
             return;
         }
 
         //If Second User Not Join With Room
         if (room.userId.length === 1) {           
             this.chatService.createChat(createChatDto, client, 'sent');
-            client.emit('message', message + ' ' + client.id);
+            client.emit('message', {message , userId : user});
             return
         }
 
@@ -141,7 +139,45 @@ export class SocketService {
         return this.chatService.createChat(createChatDto, client, 'delivered');
     }
 
-    async handleDeleteMessage(chatId: number) {
-        await this.chatService.deleteChatMessage(chatId);
+    async handleUnReadMessages({ roomId }: { roomId: string }, client: Socket) {
+        const chat = await this.chatService.findUnreadMessages(roomId , client);
+        client.emit('unReadMessages', chat);
+    }
+
+    async handleDeleteMessage({id}: { id: string} , client: Socket) {
+        const deletedMessage = await this.chatService.deleteChatMessage(id , client);
+        client.emit('deleteMessages', deletedMessage);
+    }
+
+    async handleGetMessages({ roomId }: { roomId: string } , client: Socket) {
+
+        const checkUser = await this.handleCheckUserInRoom({ roomId } , client);
+        if (!checkUser) {
+            return;
+        }
+        const chat = await this.chatService.getMessages(roomId);
+        client.emit('getAllMessages', { chat });
+    }
+
+    async handleCheckUserInRoom({ roomId }: { roomId: string } , client: Socket) {
+        const user = Number(client.data.userId);
+        const room = activeRooms.find(room => room.roomId === roomId);
+        if (!room || !room.userId.includes(user)) {
+            client.emit('error', {message: 'User not join in this room'});
+            return;
+        }
+        return true
+    }
+
+    async handleMakeAsRead(unreadMessageIds: string[], client: Socket) {
+        
+        if (!unreadMessageIds || !unreadMessageIds.length) {
+            return; // No unread message IDs provided
+          }
+        await this.chatService.markChatAsRead(unreadMessageIds);
+
+        const chat = await this.chatService.getUpdatedMessages(unreadMessageIds);
+        client.emit('makeAsRead', chat);
+        client.broadcast.emit('makeAsRead', chat);
     }
 }

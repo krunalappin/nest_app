@@ -1,5 +1,5 @@
 import { Rooms } from "src/socket/rooms/entity/room.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Chats {
@@ -21,17 +21,20 @@ export class Chats {
    @Column()
    message: string
 
-   @Column( {enum: ['sent', 'delivered' , 'deleted' , 'failed'] , nullable: true} )
+   @Column( {enum: ['sent', 'delivered' , 'deleted' , 'failed', 'read'] , nullable: true} )
    status: string
 
    @Column({ default: false})
-   read: boolean
+   isRead: boolean
 
    @Column({ type: 'timestamp', nullable: true })
    sentAt: Date
    
    @Column({ type: 'timestamp', nullable: true })
    readAt: Date
+
+   @DeleteDateColumn({ name: 'deletedAt' })
+   deletedAt: Date
    
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
    createdAt: Date
