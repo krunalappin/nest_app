@@ -15,12 +15,18 @@ export class Rooms {
 
     @ManyToOne(() => User, (user) => user.receiver)
     receiver: User
-    
+
     @Column()
     receiverId: number
 
+    @Column({ type: 'integer', array: true , default: [] })
+    blockUserIds: number[];
+
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    updatedAt: Date
 
     @OneToMany(() => Chats, (chat) => chat.room)
     chat: Chats

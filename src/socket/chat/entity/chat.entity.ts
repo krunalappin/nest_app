@@ -21,7 +21,7 @@ export class Chats {
    @Column()
    message: string
 
-   @Column( {enum: ['sent', 'delivered' , 'deleted' , 'failed', 'read'] , nullable: true} )
+   @Column( {enum: ['sent', 'delivered' , 'deleted' , 'failed', 'read' , 'block'] , nullable: true} )
    status: string
 
    @Column({ default: false})
@@ -33,9 +33,12 @@ export class Chats {
    @Column({ type: 'timestamp', nullable: true })
    readAt: Date
 
-   @DeleteDateColumn({ name: 'deletedAt' })
-   deletedAt: Date
-   
+   @Column({ type: 'timestamp', nullable: true })
+   deletedAtUser1: Date
+
+   @Column({ type: 'timestamp', nullable: true })
+   deletedAtUser2: Date
+
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
    createdAt: Date
    

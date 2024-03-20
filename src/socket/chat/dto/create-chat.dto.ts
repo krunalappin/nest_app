@@ -1,6 +1,6 @@
 export class CreateChatDto {
     roomId: string
     message: string
-    formUser: number
+    fromUser: number
     toUser: number
 }

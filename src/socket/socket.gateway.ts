@@ -5,6 +5,7 @@ import { RoomService } from './rooms/room.service';
 import { UseGuards } from '@nestjs/common';
 import { SocketAuthGuard } from 'src/auth/auth.socket.guard';
 import { CreateChatDto } from './chat/dto/create-chat.dto';
+import { Payload } from '@nestjs/microservices';
 
 @WebSocketGateway()
 @UseGuards(SocketAuthGuard)
@@ -41,11 +42,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return this.socketService.handleMessages(createChatDto, client);
   }
 
-  @SubscribeMessage('deleteMessages')
-  handleDeleteMessage(@MessageBody() { id }: { id: string }, @ConnectedSocket() client: Socket) {
-    return this.socketService.handleDeleteMessage({ id }, client);
-  }
-
   @SubscribeMessage('getAllMessages')
   handleGetMessages(@MessageBody() { roomId }: { roomId: string }, @ConnectedSocket() client: Socket) {
     return this.socketService.handleGetMessages({ roomId }, client);
@@ -60,6 +56,41 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleMakeAsRead(@MessageBody() payload: { unreadMessageIds: string[] }, @ConnectedSocket() client: Socket) {
     const { unreadMessageIds } = payload;
     return this.socketService.handleMakeAsRead(unreadMessageIds, client);
+  }
+
+  @SubscribeMessage('deleteMessages')
+  handleDeleteMessage(@MessageBody() payload: { chatIds: string[] }, @ConnectedSocket() client: Socket) {
+    const { chatIds } = payload;
+    return this.socketService.handleDeleteMessage(chatIds, client);
+  }
+
+  @SubscribeMessage('deleteMessagesForEveryone')
+  handleDeleteMessageForEveryone(@MessageBody() payload: { chatIds: string[] }, @ConnectedSocket() client: Socket) {
+    const { chatIds } = payload;
+    return this.socketService.handleDeleteMessageForEveryone(chatIds, client);
+  }
+
+  @SubscribeMessage('clearChat')
+  handleClearChat(@MessageBody() { roomId }: { roomId: string }, @ConnectedSocket() client: Socket) {
+    return this.socketService.handleClearChat({ roomId }, client);
+  }
+
+  @SubscribeMessage('editMessage')
+  handleEditMessage(@MessageBody() payload: { chatId: string, message: string }, @ConnectedSocket() client: Socket) {
+    const { chatId, message } = payload;
+    return this.socketService.handleEditMessage(chatId, message, client);
+  }
+
+  @SubscribeMessage('blockUser')
+  handleBlockUser(@MessageBody() Payload: { userId: number , roomId: string}, @ConnectedSocket() client: Socket) {
+    const { userId , roomId } = Payload
+    return this.socketService.handleBlockUser(userId, roomId ,client);
+  }
+
+  @SubscribeMessage('unBlockUser')
+  handleUnBlockUser(@MessageBody() Payload: { userId: number , roomId: string}, @ConnectedSocket() client: Socket) {
+    const { userId , roomId } = Payload
+    return this.socketService.handleUnBlockUser(userId, roomId ,client);
   }
 
 }

@@ -5,11 +5,9 @@ import { UserSession } from "src/session/session.entity";
 import { Sockets } from "src/socket/entity/socket.entity";
 import { Rooms } from "src/socket/rooms/entity/room.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { v4 as uuidv4 } from 'uuid';
 
 @Entity()
 export class User {
-
 
     @PrimaryGeneratedColumn()
     id: number;

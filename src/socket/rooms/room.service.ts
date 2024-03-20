@@ -31,13 +31,58 @@ export class RoomService {
         return room;
     }
 
-    async verifyJoinUser(client: Socket , roomId: string) {
+    async verifyJoinUser(client: Socket, roomId: string) {
         const user = client.data.userId || null;
-        const room = await this.roomRepository.findOne({ where: { id : roomId } });
-        if(user !== room.senderId && user !== room.receiverId) {
+        const room = await this.roomRepository.findOne({ where: { id: roomId } });
+        if (user !== room.senderId && user !== room.receiverId) {
             return client.emit('joined', 'User not authorized to join this room');
             // return this.socketService.disconnectSocket(user);
         }
         return true;
+    }
+
+    async blockUser(userId: number, roomId: string, client: Socket) {
+        const reqUser = client.data.userId;
+
+        const room = await this.roomRepository.findOne({ where: { id: roomId } });
+        if (room.senderId !== userId && room.receiverId !== userId) {
+            client.emit('error', { message: 'User not authorized to block this user' });
+            return null;
+        }
+
+        if (reqUser === userId) {
+            client.emit('error', { message: 'User cannot block himself' });
+            return null;
+        }
+        if (room.blockUserIds.includes(userId)) {
+            client.emit('error', { message: 'User already blocked' });
+            return null;
+        }
+        room.blockUserIds.push(userId);
+        const blockedUser = await this.roomRepository.save(room);
+        client.emit('blockUser', blockedUser);
+        client.to(roomId).emit('blockUser', { message: `User ${userId} has been blocked` });
+
+    }
+
+    async unBlockUser(userId: number, roomId: string, client: Socket) {
+        const room = await this.roomRepository.findOne({ where: { id: roomId } });
+        const index = room.blockUserIds.indexOf(userId);
+        if (index !== -1) {
+            room.blockUserIds.splice(index, 1);
+        }
+        // Save the updated room
+        const unblockedUser = await this.roomRepository.save(room);
+        client.emit('unBlockUser', unblockedUser);
+        client.to(roomId).emit('unBlockUser', { message: `User ${userId} has been unblocked` });
+    }
+
+    async checkBlockStatus(roomId: string, userId: number, client: Socket) {
+        const room = await this.roomRepository.findOne({ where: { id: roomId } });
+        if (room.blockUserIds.includes(userId)) {
+            return true;
+        }
+        
+        return false;
     }
 }
