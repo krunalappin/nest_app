@@ -1,11 +1,9 @@
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { SocketService } from './socket.service';
 import { Server, Socket } from 'socket.io';
-import { RoomService } from './rooms/room.service';
 import { UseGuards } from '@nestjs/common';
 import { SocketAuthGuard } from 'src/auth/auth.socket.guard';
 import { CreateChatDto } from './chat/dto/create-chat.dto';
-import { Payload } from '@nestjs/microservices';
 
 @WebSocketGateway()
 @UseGuards(SocketAuthGuard)
@@ -16,7 +14,6 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
     private readonly socketService: SocketService,
-    private readonly roomService: RoomService,
   ) { }
 
   handleConnection(client: Socket) {
@@ -27,10 +24,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return this.socketService.disconnectSocket(client);
   }
 
+
   @SubscribeMessage('createChat')
   handleCreateChat(@ConnectedSocket() client: Socket, @MessageBody() { senderId, receiverId }: { senderId: number, receiverId: number }) {
-    return this.roomService.createRoom(senderId, receiverId, client);
+    return this.socketService.handleCreateChat(senderId, receiverId, client);
   }
+
 
   @SubscribeMessage('join')
   handleJoin(@ConnectedSocket() client: Socket, @MessageBody() { roomId }: { roomId: string }) {
@@ -82,15 +81,15 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('blockUser')
-  handleBlockUser(@MessageBody() Payload: { userId: number , roomId: string}, @ConnectedSocket() client: Socket) {
-    const { userId , roomId } = Payload
-    return this.socketService.handleBlockUser(userId, roomId ,client);
+  handleBlockUser(@MessageBody() Payload: { userId: number, roomId: string }, @ConnectedSocket() client: Socket) {
+    const { userId, roomId } = Payload
+    return this.socketService.handleBlockUser(userId, roomId, client);
   }
 
   @SubscribeMessage('unBlockUser')
-  handleUnBlockUser(@MessageBody() Payload: { userId: number , roomId: string}, @ConnectedSocket() client: Socket) {
-    const { userId , roomId } = Payload
-    return this.socketService.handleUnBlockUser(userId, roomId ,client);
+  handleUnBlockUser(@MessageBody() Payload: { userId: number, roomId: string }, @ConnectedSocket() client: Socket) {
+    const { userId, roomId } = Payload
+    return this.socketService.handleUnBlockUser(userId, roomId, client);
   }
 
 }

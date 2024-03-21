@@ -21,15 +21,15 @@ export class Chats {
    @Column()
    message: string
 
-   @Column( {enum: ['sent', 'delivered' , 'deleted' , 'failed', 'read' , 'block'] , nullable: true} )
+   @Column({ enum: ['sent', 'delivered', 'failed', 'read', 'block'], nullable: true })
    status: string
 
-   @Column({ default: false})
+   @Column({ default: false })
    isRead: boolean
 
    @Column({ type: 'timestamp', nullable: true })
    sentAt: Date
-   
+
    @Column({ type: 'timestamp', nullable: true })
    readAt: Date
 
@@ -41,7 +41,7 @@ export class Chats {
 
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
    createdAt: Date
-   
+
    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
    updatedAt: Date
 }

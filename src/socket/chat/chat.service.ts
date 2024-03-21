@@ -14,24 +14,8 @@ export class ChatService {
     async createChat(createChatDto: CreateChatDto, client: Socket, status: 'sent' | 'delivered' | 'block') {
         const fromUser = client.data.userId
         const chat = this.chatRepository.create({ ...createChatDto, fromUser, status, sentAt: new Date() });
-
-        try {
-            const saveChat = await this.chatRepository.save(chat);
-
-            if (status === 'delivered') {
-                saveChat.isRead = true;
-                saveChat.readAt = new Date();
-                await this.chatRepository.save(saveChat);
-            }
-
-            if (status === 'block') {
-                saveChat.status = 'block';
-                await this.chatRepository.save(saveChat);
-            }
-        } catch (error) {
-            chat.status = 'failed';
-        }
-        await this.chatRepository.save(chat);
+        const message = await this.chatRepository.save(chat);
+        return message;
     }
 
     //when touser join room.
@@ -82,15 +66,16 @@ export class ChatService {
             const chat = await this.chatRepository.findOne({ where: { id: chatId } });
             const checkTime = new Date(Date.now() - 15 * 60 * 1000);
             if (chat) {
-                if (chat.sentAt < checkTime) {
-                    return null;
+
+                if (chat.toUser === user && chat.sentAt < checkTime) {
+                    return;
+                } else {
+                    chat.deletedAtUser1 = new Date();
+                    chat.deletedAtUser2 = new Date();
+                    await this.chatRepository.save(chat);
                 }
-                chat.deletedAtUser1 = new Date();
-                chat.deletedAtUser2 = new Date();
-                await this.chatRepository.save(chat);
             }
         })
-
         const chats = await this.getChatById(chatIds);
         return chats;
     }
@@ -106,10 +91,10 @@ export class ChatService {
         const chat = await this.chatRepository.find({
             where: [
                 { roomId: roomId, fromUser: user, deletedAtUser1: IsNull() },
-                { roomId: roomId, toUser: user, status: Not('block') , deletedAtUser2: IsNull() }
+                { roomId: roomId, toUser: user, status: Not('block'), deletedAtUser2: IsNull() }
             ],
             order: {
-                createdAt: 'ASC'
+                sentAt: 'ASC'
             },
             take: 50
         });

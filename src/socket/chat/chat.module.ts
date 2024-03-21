@@ -11,4 +11,4 @@ import { TypeOrmModule } from "@nestjs/typeorm";
     providers: [ChatService],
     exports: [ChatService]
 })
-export class ChatModule {}
+export class ChatModule { }

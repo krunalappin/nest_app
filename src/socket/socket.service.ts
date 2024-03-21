@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Sockets } from './entity/socket.entity';
-import { Repository } from 'typeorm';
-import { User } from 'src/user/entity/user.entity';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { RoomInterface } from './dto/roomInterface.dto';
-import { CreateChatDto } from './chat/dto/create-chat.dto';
+import { User } from 'src/user/entity/user.entity';
+import { Repository } from 'typeorm';
 import { ChatService } from './chat/chat.service';
+import { CreateChatDto } from './chat/dto/create-chat.dto';
+import { RoomInterface } from './dto/roomInterface.dto';
+import { Sockets } from './entity/socket.entity';
 import { RoomService } from './rooms/room.service';
 
 const socketRoomMap: { [userId: number]: string } = {};
@@ -23,6 +23,7 @@ export class SocketService {
         private readonly chatService: ChatService,
         private readonly roomService: RoomService
     ) { }
+
 
     async createSocket(client: Socket) {
         try {
@@ -45,8 +46,8 @@ export class SocketService {
             client.emit('connected', `Welcome to the chat! ${client.id}`);
 
         } catch (error) {
-            client.emit('error', error.message);
             this.handleSocketStatus(client);
+            return;
         }
 
     }
@@ -56,6 +57,10 @@ export class SocketService {
         this.handleLeaveRoom(user);
         this.handleSocketStatus(client);
         return
+    }
+
+    async handleCreateChat(senderId: number, receiverId: number, client: Socket) {
+        return await this.roomService.createRoom(senderId, receiverId, client);
     }
 
     async handleSocketStatus(client: Socket) {
@@ -70,13 +75,6 @@ export class SocketService {
     }
 
     async handleJoinRoom(client: Socket, { roomId }: { roomId: string }) {
-
-        const room = activeRooms.find(room => room.roomId === roomId);
-        if (room && room.userId.length >= 2) {
-            client.emit('error', 'This room is already full.');
-            return;
-        }
-
         const checkRoomUser = await this.roomService.verifyJoinUser(client, roomId);
         if (!checkRoomUser) {
             return;
@@ -84,7 +82,11 @@ export class SocketService {
         const user = client.data.userId;
         const roomIndex = activeRooms.findIndex(room => room.roomId === roomId);
         if (roomIndex !== -1) {
-            activeRooms[roomIndex].userId.push(user);
+            if (!activeRooms[roomIndex].userId.includes(user) && activeRooms[roomIndex].userId.length < 2) {
+                activeRooms[roomIndex].userId.push(user);
+            } else {
+                return;
+            }
         } else {
             const newRoom: RoomInterface = {
                 roomId,
@@ -93,11 +95,10 @@ export class SocketService {
             activeRooms.push(newRoom);
         }
         socketRoomMap[user] = roomId;
-        // await this.chatService.markChatAsRead(user, roomId);
         client.join(roomId);
         client.emit('joined', `On joined ::: ${roomId}`);
         client.to(roomId).emit('joined', `${client.id} joined ${roomId}`);
-
+        console.log(':: ========= :: > activeRooms < :: ========= :: ' , activeRooms);
     }
 
     async handleLeaveRoom(user: number) {
@@ -119,18 +120,20 @@ export class SocketService {
 
     async handleMessages(createChatDto: CreateChatDto, client: Socket) {
         const { roomId, message, toUser } = createChatDto;
+        const checkRoomInDatabase = await this.roomService.getRoom(roomId);
         const user = Number(client.data.userId);
         const room = activeRooms.find(room => room.roomId === roomId);
 
         const checkReceiverBlock = await this.roomService.checkBlockStatus(roomId, toUser, client);
         if (checkReceiverBlock) {
-            return client.emit('error', { message: `User ${toUser} is blocked` });
+            client.emit('message', checkRoomInDatabase);
+            return;
         }
 
         const senderBlockedByReceiver = await this.roomService.checkBlockStatus(roomId, user, client);
         if (senderBlockedByReceiver) {
-            this.chatService.createChat(createChatDto, client, 'block');
-            client.emit('message', { message, userId: user });
+            const userMessage = await this.chatService.createChat(createChatDto, client, 'block');
+            client.emit('message', userMessage);
             return;
         }
 
@@ -142,13 +145,14 @@ export class SocketService {
 
         //If Second User Not Join With Room
         if (room.userId.length === 1) {
-            this.chatService.createChat(createChatDto, client, 'sent');
-            client.emit('message', { message, userId: user });
+            const userMessage = await this.chatService.createChat(createChatDto, client, 'sent');
+            client.emit('message', userMessage);
             return
         }
 
-        await this.chatService.createChat(createChatDto, client, 'delivered');
-        client.to(roomId).emit('message', { message, userId: user });
+        const userMessage = await this.chatService.createChat(createChatDto, client, 'delivered');
+        client.emit('message', userMessage);
+        client.to(roomId).emit('message', userMessage);
         return;
     }
 
@@ -172,7 +176,6 @@ export class SocketService {
         const user = Number(client.data.userId);
         const room = activeRooms.find(room => room.roomId === roomId);
         if (!room || !room.userId.includes(user)) {
-            client.emit('error', { message: 'User not join in this room' });
             return;
         }
         return true
@@ -187,11 +190,10 @@ export class SocketService {
 
         const chat = await this.chatService.getUpdatedMessages(unreadMessageIds);
         client.emit('makeAsRead', chat);
-        client.broadcast.emit('makeAsRead', chat);
+        client.to(chat[0].roomId).emit('makeAsRead', chat);
     }
 
     async handleDeleteMessage(chatIds: string[], client: Socket) {
-
         const deletedMessage = await this.chatService.deleteChatMessage(chatIds, client);
         client.emit('deleteMessages', deletedMessage);
     }

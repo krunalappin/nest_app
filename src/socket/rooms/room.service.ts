@@ -14,10 +14,15 @@ export class RoomService {
     ) { }
 
     async findRoom(senderId: number, receiverId: number): Promise<Rooms | undefined> {
-        return this.roomRepository.findOne({ where: { senderId, receiverId } });
+        return this.roomRepository.findOne({ 
+            where: [
+                { senderId: senderId, receiverId: receiverId },
+                { senderId: receiverId, receiverId: senderId }
+            ]
+        });
     }
 
-    async createRoom(senderId: number, receiverId: number, client: Socket): Promise<Rooms | string> {
+    async createRoom(senderId: number, receiverId: number, client: Socket) {
 
         const existingRoom = await this.findRoom(senderId, receiverId);
 
@@ -27,7 +32,9 @@ export class RoomService {
         }
         const room = this.roomRepository.create({ senderId, receiverId });
         await this.roomRepository.save(room);
-        client.emit('createChat', room.id);
+        client.emit('createChat', room);
+        client.to(String(senderId)).emit('createChat', room);
+        client.to(String(receiverId)).emit('createChat', room);
         return room;
     }
 
@@ -82,7 +89,11 @@ export class RoomService {
         if (room.blockUserIds.includes(userId)) {
             return true;
         }
-        
+
         return false;
+    }
+
+    async getRoom(roomId: string) {
+        return await this.roomRepository.findOne({ where: { id: roomId } });
     }
 }
