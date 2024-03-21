@@ -181,16 +181,11 @@ export class SocketService {
         return true
     }
 
-    async handleMakeAsRead(unreadMessageIds: string[], client: Socket) {
-
-        if (!unreadMessageIds || !unreadMessageIds.length) {
-            return; // No unread message IDs provided
-        }
-        await this.chatService.markChatAsRead(unreadMessageIds);
-
-        const chat = await this.chatService.getUpdatedMessages(unreadMessageIds);
+    async handleMakeAsRead(unreadMessageIds: string[], client: Socket , roomId: string) {
+        await this.chatService.markChatAsRead(unreadMessageIds , client, roomId);
+        const chat = await this.chatService.getUpdatedMessages(unreadMessageIds , client , roomId);
         client.emit('makeAsRead', chat);
-        client.to(chat[0].roomId).emit('makeAsRead', chat);
+        client.to(roomId).emit('makeAsRead', chat);
     }
 
     async handleDeleteMessage(chatIds: string[], client: Socket) {

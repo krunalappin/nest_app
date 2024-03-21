@@ -52,9 +52,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('makeAsRead')
-  handleMakeAsRead(@MessageBody() payload: { unreadMessageIds: string[] }, @ConnectedSocket() client: Socket) {
-    const { unreadMessageIds } = payload;
-    return this.socketService.handleMakeAsRead(unreadMessageIds, client);
+  handleMakeAsRead(@MessageBody() payload: { unreadMessageIds: string[], roomId: string }, @ConnectedSocket() client: Socket) {
+    const { unreadMessageIds , roomId } = payload;
+    return this.socketService.handleMakeAsRead(unreadMessageIds, client, roomId);
   }
 
   @SubscribeMessage('deleteMessages')

@@ -19,16 +19,27 @@ export class ChatService {
     }
 
     //when touser join room.
-    async markChatAsRead(unreadMessageIds: string[]) {
-        await this.chatRepository.update(
-            { id: In(unreadMessageIds) },
-            { isRead: true, readAt: new Date(), status: 'read' }
-        );
+    async markChatAsRead(unreadMessageIds: string[], client: Socket, roomId: string) {
+        if (unreadMessageIds.length === 0) {
+            await this.chatRepository.update(
+                { status: 'delivered', toUser: client.data.userId, roomId: roomId },
+                { isRead: true, readAt: new Date(), status: 'read' }
+            )
+        } else {
+            await this.chatRepository.update(
+                { id: In(unreadMessageIds) },
+                { isRead: true, readAt: new Date(), status: 'read' }
+            );
+        }
     }
 
     //Mark as read updated data
-    async getUpdatedMessages(unreadMessageIds: string[]) {
-        return await this.chatRepository.findByIds(unreadMessageIds);
+    async getUpdatedMessages(unreadMessageIds: string[], client: Socket, roomId: string) {
+        if (unreadMessageIds.length === 0) {
+            return await this.getMessages(roomId, client);
+        } else {
+            return await this.chatRepository.findByIds(unreadMessageIds);
+        }
     }
 
     //when touser connect socket
@@ -94,7 +105,7 @@ export class ChatService {
                 { roomId: roomId, toUser: user, status: Not('block'), deletedAtUser2: IsNull() }
             ],
             order: {
-                sentAt: 'ASC'
+                sentAt: 'DESC'
             },
             take: 50
         });
