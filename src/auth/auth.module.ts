@@ -16,7 +16,7 @@ import { SocketAuthGuard } from "./auth.socket.guard";
             secret : jwtConstants.secret,
             global : true,
             signOptions : {expiresIn : '10d'}
-        })
+        }),
     ],
     controllers : [AuthController],
     providers : [AuthService , AuthGuard , SocketAuthGuard],

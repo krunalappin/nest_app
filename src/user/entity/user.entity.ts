@@ -1,6 +1,5 @@
 import { Blog } from "src/blog/entities/blog.entity";
 import { Orders } from "src/order/entity/order.entity";
-import { Products } from "src/product/entity/product.entity";
 import { UserSession } from "src/session/session.entity";
 import { Sockets } from "src/socket/entity/socket.entity";
 import { Rooms } from "src/socket/rooms/entity/room.entity";
@@ -21,17 +20,17 @@ export class User {
     @Column()
     password: string;
 
-    @Column({ nullable: true })
-    bio: string;
-
-    @Column({ nullable: true })
-    fullName: string;
-
-    @Column({ nullable: true })
-    website: string;
-
     @Column({ nullable: true, unique: true })
     phoneNumber: string;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
+
+    @Column({ type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP' })
+    updatedAt: Date;
+
+    @Column({ type: 'timestamp', nullable: true })
+    lastDeactivatedAt: Date;
 
     @OneToMany(() => Blog, (blog) => blog.user)
     blog: Blog[];
@@ -50,7 +49,6 @@ export class User {
 
     @OneToMany(() => Rooms, (room) => room.receiver)
     receiver: Rooms[];
-
 
     constructor(partial: Partial<User>) {
         Object.assign(this, partial);

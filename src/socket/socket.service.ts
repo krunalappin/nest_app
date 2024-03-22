@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { User } from 'src/user/entity/user.entity';
 import { Repository } from 'typeorm';
 import { ChatService } from './chat/chat.service';
 import { CreateChatDto } from './chat/dto/create-chat.dto';
@@ -10,6 +9,7 @@ import { RoomInterface } from './dto/roomInterface.dto';
 import { Sockets } from './entity/socket.entity';
 import { RoomService } from './rooms/room.service';
 
+let activeSessions = [];
 const socketRoomMap: { [userId: number]: string } = {};
 const activeRooms: RoomInterface[] = [];
 
@@ -18,14 +18,14 @@ export class SocketService {
 
     constructor(
         @InjectRepository(Sockets) private readonly socketRepository: Repository<Sockets>,
-        @InjectRepository(User) private readonly userRepository: Repository<User>,
+        @Inject(forwardRef(() => AuthService))
         private readonly authService: AuthService,
         private readonly chatService: ChatService,
+        @Inject(forwardRef(() => RoomService))
         private readonly roomService: RoomService
     ) { }
 
-
-    async createSocket(client: Socket) {
+    async handleConnection(client: Socket) {
         try {
             const token = client.handshake.headers.authorization;
             const user = await this.authService.verifyToken(token);
@@ -42,7 +42,7 @@ export class SocketService {
                 console.log(`User ${userId} connected with socket id ${client.id}`);
             }
             await this.chatService.updateChatStatus(userId);
-
+            activeSessions.push({ userId, socketId: client.id });
             client.emit('connected', `Welcome to the chat! ${client.id}`);
 
         } catch (error) {
@@ -52,12 +52,21 @@ export class SocketService {
 
     }
 
-    async disconnectSocket(client: Socket) {
+    async handleDisconnect(client: Socket) {
         const user = client.data.userId;
         this.handleLeaveRoom(user);
         this.handleSocketStatus(client);
+        activeSessions = activeSessions.filter(session => session.userId !== user);
+        client.emit('disconnected', `Goodbye! ${client.id}`);
         return
     }
+
+    // async handleDisconnect(userId: number) {
+    //     const user = activeSessions.find(session => session.userId === userId).socketId;
+    //     activeSessions = activeSessions.filter(session => session.userId !== user);
+    //     console.log(':: ========= :: > User Disconnected < :: ========= :: ', activeSessions);
+    //     return
+    // }
 
     async handleCreateChat(senderId: number, receiverId: number, client: Socket) {
         return await this.roomService.createRoom(senderId, receiverId, client);
@@ -98,7 +107,6 @@ export class SocketService {
         client.join(roomId);
         client.emit('joined', `On joined ::: ${roomId}`);
         client.to(roomId).emit('joined', `${client.id} joined ${roomId}`);
-        console.log(':: ========= :: > activeRooms < :: ========= :: ' , activeRooms);
     }
 
     async handleLeaveRoom(user: number) {
@@ -181,11 +189,11 @@ export class SocketService {
         return true
     }
 
-    async handleMakeAsRead(unreadMessageIds: string[], client: Socket , roomId: string) {
-        await this.chatService.markChatAsRead(unreadMessageIds , client, roomId);
-        const chat = await this.chatService.getUpdatedMessages(unreadMessageIds , client , roomId);
+    async handleMakeAsRead(unreadMessageIds: string[], client: Socket, roomId: string) {
+        await this.chatService.markChatAsRead(unreadMessageIds, client, roomId);
+        const chat = await this.chatService.getUpdatedMessages(unreadMessageIds, client, roomId);
         client.emit('makeAsRead', chat);
-        client.to(roomId).emit('makeAsRead', chat);
+        client.to(roomId || chat[0].roomId).emit('makeAsRead', chat);
     }
 
     async handleDeleteMessage(chatIds: string[], client: Socket) {
@@ -229,4 +237,5 @@ export class SocketService {
         }
         return await this.roomService.unBlockUser(userId, roomId, client);
     }
+
 }

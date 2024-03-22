@@ -4,6 +4,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entity/user.entity";
 import { Response } from "express";
 import { Public } from "src/constants/message-constants";
+import { BlockUserDto } from "./dto/create-block-user.dto";
 
 @Public()
 @Controller('/users')
@@ -15,6 +16,12 @@ export class UserController {
    @UsePipes(new ValidationPipe({transform:true}))
    async createUser(@Body() createUserDto : CreateUserDto) : Promise<User>{
        const user = await this.userService.createUser(createUserDto);
+       return user;
+   }
+
+   @Post('/blockUser')
+   async blockUser(@Body() blockUserDto : BlockUserDto): Promise<User>{
+       const user = await this.userService.blockUser(blockUserDto);
        return user;
    }
 

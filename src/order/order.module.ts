@@ -9,11 +9,13 @@ import { User } from "src/user/entity/user.entity";
 import { Products } from "src/product/entity/product.entity";
 import { Categories } from "src/categories/entity/category.entity";
 import { OrderResolver } from "./order.resolver";
+import { UserModule } from "src/user/user.module";
 
 @Module({
     imports : [
         AuthModule,
         SessionModule,
+        UserModule,
         TypeOrmModule.forFeature([Orders]),
         TypeOrmModule.forFeature([User]),
         TypeOrmModule.forFeature([Products]),

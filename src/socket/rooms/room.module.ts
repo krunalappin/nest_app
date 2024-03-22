@@ -8,6 +8,7 @@ import { SocketModule } from "../socket.module";
     imports: [
         TypeOrmModule.forFeature([Rooms]),
         forwardRef(() => SocketModule),
+        // SocketModule
     ],
     controllers: [],
     providers: [RoomService],

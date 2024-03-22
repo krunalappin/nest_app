@@ -1,22 +1,24 @@
-import { BadRequestException, Injectable, NotFoundException, Res } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "./entity/user.entity";
 import { QueryFailedError, Repository } from "typeorm";
-import { CreateUserDto } from "./dto/create-user.dto";
 import { hashPassword } from "../utils/password.util";
-
+import { BlockUserDto } from "./dto/create-block-user.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { User } from "./entity/user.entity";
+import { SocketService } from "src/socket/socket.service";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
-       
+        @Inject(forwardRef(() => SocketService))
+        private readonly socketService: SocketService
     ) { }
 
     async createUser(createUserDto: CreateUserDto): Promise<User> {
         try {
             const hashedPassword = await hashPassword(createUserDto.password);
-            const user = new User({...createUserDto , password : hashedPassword});
+            const user = new User({ ...createUserDto, password: hashedPassword });
             return await this.userRepository.save(user);
         } catch (error) {
             if (error instanceof QueryFailedError) {
@@ -81,4 +83,22 @@ export class UserService {
         return this.userRepository.findOneBy({ email });
     }
 
+    async updatelastDeactivatedAt(id: number, lastDeactivatedAt: Date | null) {
+        const user = await this.userRepository.findOneBy({ id });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        user.lastDeactivatedAt = lastDeactivatedAt;
+        return await this.userRepository.save(user);
+
+    }
+
+    async blockUser(blockUserDto: BlockUserDto): Promise<User> {
+        const { userId, blockDays } = blockUserDto;
+        const currentDate = new Date();
+        const blockDate = new Date(currentDate.getTime() + (blockDays * 24 * 60 * 60 * 1000));
+        const user = await this.userRepository.update({ id: userId }, { lastDeactivatedAt: blockDate });
+        // this.socketService.handleDisconnect(userId);
+        return await this.userRepository.findOneBy({ id: userId });
+    }
 }
