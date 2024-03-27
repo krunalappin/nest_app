@@ -217,7 +217,8 @@ export class OrderService {
     // ************************************************************************GARPHQL*************************************************************************
 
     async graphqlGetAllOrder(): Promise<Order[]> {
-        return this.orderRepository.find( { relations: ['user', 'product'] } );
+        const order = this.orderRepository.find( { relations: ['user', 'product'] } );
+        return order;
     }
 
     async graphqlGetOrderById(id: string): Promise<Order> {

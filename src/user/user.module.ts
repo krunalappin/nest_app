@@ -1,6 +1,5 @@
-import { Module, forwardRef } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { SocketModule } from "src/socket/socket.module";
 import { User } from "./entity/user.entity";
 import { UserController } from "./user.controlller";
 import { UserResolver } from "./user.resolver";
@@ -10,7 +9,6 @@ import { UserService } from "./user.service";
 @Module({
     imports: [
         TypeOrmModule.forFeature([User]),
-        forwardRef(() => SocketModule)
     ],
     controllers: [UserController],
     providers: [UserService, UserResolver],

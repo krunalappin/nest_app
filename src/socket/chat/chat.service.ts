@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Chats } from "./entity/chat.entity";
-import { Brackets, In, IsNull, Not, Repository } from "typeorm";
-import { CreateChatDto } from "./dto/create-chat.dto";
 import { Socket } from "socket.io";
+import { In, IsNull, Not, Repository } from "typeorm";
+import { CreateChatDto } from "./dto/create-chat.dto";
+import { Chats } from "./entity/chat.entity";
 
 @Injectable()
 export class ChatService {

@@ -3,7 +3,7 @@ import { OrderService } from "./order.service";
 import { Order } from "./model/order.model";
 import { GraphqlOrderDto } from "./dto/graphql-order.dto";
 import { UpdateGraphqlOrderDto } from "./dto/graphql-updateorder.dto";
-import { UseGuards } from "@nestjs/common";
+import { Next, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "src/auth/auth.guard";
 
 @UseGuards(AuthGuard)
@@ -14,8 +14,8 @@ export class OrderResolver {
 
     @Query(() => [Order])
     async getAllOrders(): Promise<Order[]> {
-        const order = await this.orderService.graphqlGetAllOrder();
-        return order
+            const order = await this.orderService.graphqlGetAllOrder();
+            return order
     }
 
     @Query(() => Order)

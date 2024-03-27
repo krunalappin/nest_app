@@ -1,9 +1,9 @@
-import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from "@nestjs/graphql";
-import { ProductService } from "./product.service";
+import { Args, ID, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { CategoryService } from "src/categories/category.service";
-import { Product } from "./model/product.model";
 import { GraphqlProductDto } from "./dto/graphql-product.dto";
 import { UpdateProductDto } from "./dto/graphql-updateproduct.dto";
+import { Product } from "./model/product.model";
+import { ProductService } from "./product.service";
 
 
 @Resolver('Product')
@@ -37,8 +37,8 @@ export class ProductResolver {
 
 
     @Mutation(() => Product)
-    async updateProduct(@Args('id', { type: () => ID }) id: string,@Args('graphqlProductDto') graphqlProductDto: UpdateProductDto): Promise<Product> {
-            return this.productService.updateProducts(id, graphqlProductDto);
+    async updateProduct(@Args('id', { type: () => ID }) id: string, @Args('graphqlProductDto') graphqlProductDto: UpdateProductDto): Promise<Product> {
+        return this.productService.updateProducts(id, graphqlProductDto);
     }
 
 }

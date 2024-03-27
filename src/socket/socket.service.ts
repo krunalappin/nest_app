@@ -61,13 +61,6 @@ export class SocketService {
         return
     }
 
-    // async handleDisconnect(userId: number) {
-    //     const user = activeSessions.find(session => session.userId === userId).socketId;
-    //     activeSessions = activeSessions.filter(session => session.userId !== user);
-    //     console.log(':: ========= :: > User Disconnected < :: ========= :: ', activeSessions);
-    //     return
-    // }
-
     async handleCreateChat(senderId: number, receiverId: number, client: Socket) {
         return await this.roomService.createRoom(senderId, receiverId, client);
     }

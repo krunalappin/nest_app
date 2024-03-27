@@ -55,7 +55,6 @@ import { HttpExceptionFilter } from './utils/http-exception.filter';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    
     LoggerHelper,
   ],
 

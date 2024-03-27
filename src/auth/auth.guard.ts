@@ -30,18 +30,18 @@ export class AuthGuard implements CanActivate {
         if (isPublic) {
             return true;
         }
-
-        const request = context.switchToHttp().getRequest();
+        const request = context.switchToHttp().getRequest() || context.getArgByIndex(2)?.req;
+        if (!request || !request.headers) {
+            throw new UnauthorizedException('Request headers not found');
+        }
         const token = this.extractTokenFromHeader(request);
         if (!token && token === undefined) {
             throw new UnauthorizedException('Token not found');
         }
-
         const validToken = await this.sessionService.findByToken(token);
         if (!(token === validToken?.access_token)) {
             throw new UnauthorizedException('Invalid Token');
         }
-
         try {
             const payload = await this.jwtService.verifyAsync(
                 token,
@@ -57,18 +57,12 @@ export class AuthGuard implements CanActivate {
         } catch (error) {
             throw new UnauthorizedException(error.message);
         }
-
         return true;
     }
 
     private extractTokenFromHeader(request: Request): string | undefined {
         const [type, token] = request.headers.authorization?.split(' ') ?? [];
         return type === 'Bearer' ? token : undefined;
-    }
-
-
-    private extractTokenFromCookie(request: Request): string | undefined {
-        return request.cookies.token
     }
 
 }

@@ -1,18 +1,17 @@
 import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { SocketService } from "src/socket/socket.service";
 import { QueryFailedError, Repository } from "typeorm";
 import { hashPassword } from "../utils/password.util";
 import { BlockUserDto } from "./dto/create-block-user.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entity/user.entity";
-import { SocketService } from "src/socket/socket.service";
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
-        @Inject(forwardRef(() => SocketService))
-        private readonly socketService: SocketService
+       
     ) { }
 
     async createUser(createUserDto: CreateUserDto): Promise<User> {
@@ -98,7 +97,6 @@ export class UserService {
         const currentDate = new Date();
         const blockDate = new Date(currentDate.getTime() + (blockDays * 24 * 60 * 60 * 1000));
         const user = await this.userRepository.update({ id: userId }, { lastDeactivatedAt: blockDate });
-        // this.socketService.handleDisconnect(userId);
         return await this.userRepository.findOneBy({ id: userId });
     }
 }

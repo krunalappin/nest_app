@@ -9,10 +9,8 @@ export class Categories {
     name: string;
     @Column()
     description: string;
-
     @OneToMany(() => Products, (product) => product.category)
     products: Products[];
-    
 }
 
 
