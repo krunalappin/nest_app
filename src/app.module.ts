@@ -16,6 +16,7 @@ import { SessionModule } from './session/session.module';
 import { SocketModule } from './socket/socket.module';
 import { UserModule } from './user/user.module';
 import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { DistanceRangeModule } from './distanceRange/distanceRange.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { HttpExceptionFilter } from './utils/http-exception.filter';
     BlogModule,
     AuthModule,
     SessionModule,
+    DistanceRangeModule
   ],
   providers: [
     AuthController,

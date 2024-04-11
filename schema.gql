@@ -41,6 +41,12 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type DistanceRange {
+  id: Float!
+  from: Float!
+  to: Float!
+}
+
 type Query {
   getAllUsers: [User!]!
   getAllOrders: [Order!]!
@@ -48,6 +54,8 @@ type Query {
   products: [Product!]!
   product(id: String!): Product!
   getAllCategories: [Category!]!
+  getAllDistanceRanges: [DistanceRange!]!
+  getDistanceRange(id: Float!): DistanceRange!
 }
 
 type Mutation {
@@ -57,6 +65,9 @@ type Mutation {
   createProduct(graphqlProductDto: GraphqlProductDto!): Product!
   deleteProduct(id: String!): String!
   updateProduct(id: ID!, graphqlProductDto: UpdateProductDto!): Product!
+  createDistanceRange(distanceRangeDto: DistanceRangeDto!): DistanceRange!
+  updateDistanceRange(updateDistanceRangeDto: UpdateDistanceRangeDto!): DistanceRange!
+  deleteDistanceRange(id: Float!): String!
 }
 
 input GraphqlOrderDto {
@@ -83,4 +94,16 @@ input UpdateProductDto {
   unit: String
   price: Float
   category_id: Float
+}
+
+input DistanceRangeDto {
+  id: Float
+  from: Float
+  to: Float
+}
+
+input UpdateDistanceRangeDto {
+  id: Float!
+  from: Float
+  to: Float
 }
