@@ -1,38 +1,37 @@
 import { Args, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { DistanceRangeService } from "./distanceRange.service";
-import { DistanceRange } from "./model/distanceRange.model";
+import { DistanceRangeModel } from "./model/distanceRange.model";
 import { DistanceRangeDto } from "./dto/distanceRange.dto";
 import { UpdateDistanceRangeDto } from "./dto/updatedistanceRange.dto";
 
-@Resolver('DistanceRange')
+@Resolver('DistanceRangeModel')
 export class DistanceRangeResolver {
     constructor(
         private readonly distanceRangeService: DistanceRangeService
     ) { }
 
-    @Query(() => [DistanceRange])
-    async getAllDistanceRanges(): Promise<DistanceRange[]> {
+    @Query(() => [DistanceRangeModel])
+    async getAllDistanceRanges(): Promise<DistanceRangeModel[]> {
         return await this.distanceRangeService.getAllDistanceRange();
     }
 
-    @Query(() => DistanceRange)
-    async getDistanceRange(@Args('id') id: number): Promise<DistanceRange> {
+    @Query(() => DistanceRangeModel)
+    async getDistanceRange(@Args('id') id: number): Promise<DistanceRangeModel> {
         return await this.distanceRangeService.getDistanceRangeById(id);
     }
 
-    @Mutation(() => DistanceRange)
-    async createDistanceRange(@Args('distanceRangeDto') distanceRangeDto: DistanceRangeDto): Promise<DistanceRange> {
-        return await this.distanceRangeService.createDistanceRange(distanceRangeDto);
+    @Mutation(() => DistanceRangeModel)
+    async createDistanceRange(@Args('data') data: DistanceRangeDto): Promise<DistanceRangeModel> {
+        return await this.distanceRangeService.createDistanceRange(data);
     }
 
-    @Mutation(() => DistanceRange)
-    async updateDistanceRange(@Args('updateDistanceRangeDto') updateDistanceRangeDto: UpdateDistanceRangeDto): Promise<DistanceRange> {
-        return await this.distanceRangeService.updateDistanceRange(updateDistanceRangeDto);
+    @Mutation(() => DistanceRangeModel)
+    async updateDistanceRange(@Args('data') data: UpdateDistanceRangeDto): Promise<DistanceRangeModel> {
+        return await this.distanceRangeService.updateDistanceRange(data);
     }
 
-    @Mutation(() => String)
-    async deleteDistanceRange(@Args('id') id: number): Promise<String> {
-        await this.distanceRangeService.deleteDistanceRange(id);
-        return 'Deleted successfully';
+    @Mutation(() => Boolean)
+    async deleteDistanceRange(@Args('id') id: number): Promise<Boolean> {
+        return await this.distanceRangeService.deleteDistanceRange(id);
     }
 }

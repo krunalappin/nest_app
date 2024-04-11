@@ -8,7 +8,6 @@ import { DistanceRange } from "./entity/distanceRange.entity";
     imports: [
         TypeOrmModule.forFeature([DistanceRange])
     ],
-    controllers: [],
     providers: [DistanceRangeResolver, DistanceRangeService],
     exports: [DistanceRangeResolver, DistanceRangeService]
 })

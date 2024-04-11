@@ -1,14 +1,14 @@
 import { Field, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
-export class DistanceRange {
+export class DistanceRangeModel {
+    @Field()
+    id?: number
 
-    @Field(type => Number)
-    id? : number
+    @Field()
+    from?: number
 
-    @Field(type => Number)
-    from? : number
+    @Field()
+    to?: number
 
-    @Field(type => Number)
-    to? : number
 }

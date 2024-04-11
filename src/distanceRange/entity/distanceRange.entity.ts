@@ -1,13 +1,21 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { ObjectType } from "@nestjs/graphql";
+import { Column, Entity, IsNull, PrimaryColumn } from "typeorm";
 
-@Entity({ name: "distanceRange" })
+@Entity("distanceRange")
 export class DistanceRange {
     @PrimaryColumn()
-    id : number;
+    id: number;
 
     @Column()
-    from : number;
+    from: number;
 
     @Column()
-    to : number;
+    to: number;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' , onUpdate: 'CURRENT_TIMESTAMP' })
+    updatedAt: Date;
 }
+

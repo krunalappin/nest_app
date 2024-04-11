@@ -4,6 +4,7 @@ import { DistanceRange } from "./entity/distanceRange.entity";
 import { Repository } from "typeorm";
 import { DistanceRangeDto } from "./dto/distanceRange.dto";
 import { UpdateDistanceRangeDto } from "./dto/updatedistanceRange.dto";
+import { DistanceRangeModel } from "./model/distanceRange.model";
 
 @Injectable()
 export class DistanceRangeService {
@@ -11,53 +12,50 @@ export class DistanceRangeService {
         @InjectRepository(DistanceRange) private readonly distanceRangeRepository: Repository<DistanceRange>,
     ) { }
 
-    async getAllDistanceRange(): Promise<DistanceRange[]> {
+    async getAllDistanceRange(): Promise<DistanceRangeModel[]> {
         return await this.distanceRangeRepository.find();
     }
 
-    async getDistanceRangeById(id: number): Promise<DistanceRange> {
+    async getDistanceRangeById(id: number): Promise<DistanceRangeModel> {
         return await this.distanceRangeRepository.findOne({
             where: { id },
-            order: { id: 'DESC' }
+            order: { id: 'ASC' }
         });
     }
 
-    async createDistanceRange(distanceRangeDto: DistanceRangeDto): Promise<DistanceRange> {
+    async createDistanceRange(distanceRangeDto: DistanceRangeDto): Promise<DistanceRangeModel> {
         const maxIdDistanceRange = await this.distanceRangeRepository
             .createQueryBuilder("distanceRange")
             .select("MAX(distanceRange.id)", "maxId")
             .getRawOne();
-
-        let nextId = 1;
-
         if (maxIdDistanceRange && maxIdDistanceRange.maxId) {
-            nextId = parseInt(maxIdDistanceRange.maxId) + 1;
+            distanceRangeDto.id = parseInt(maxIdDistanceRange.maxId) + 1;
         }
-        return await this.distanceRangeRepository.save({ ...distanceRangeDto, id: nextId });
+        return await this.distanceRangeRepository.save({ ...distanceRangeDto, id: distanceRangeDto.id });
     }
 
-    async updateDistanceRange(updateDistanceRangeDto: UpdateDistanceRangeDto): Promise<DistanceRange> {
-
+    async updateDistanceRange(updateDistanceRangeDto: UpdateDistanceRangeDto): Promise<DistanceRangeModel> {
         await this.distanceRangeRepository.update(updateDistanceRangeDto.id, { ...updateDistanceRangeDto });
         return await this.getDistanceRangeById(updateDistanceRangeDto.id);
     }
 
-    async deleteDistanceRange(id: number): Promise<String> {
 
-        const distanceRangeToDelete = await this.distanceRangeRepository.delete({ id });
-        if (distanceRangeToDelete.affected === 0) {
+    async deleteDistanceRange(id: number): Promise<Boolean> {
+        const findDistanceRange = await this.getDistanceRangeById(id);
+        if (!findDistanceRange) {
             throw new NotFoundException('DistanceRange not found');
         }
-
-        const remainingDistanceRanges = await this.distanceRangeRepository.find({ order: { id: 'ASC' } });
-
-        const updatePromises = remainingDistanceRanges.map(async (distanceRange, index) => {
-            if (distanceRange.id !== index + 1) {
-                await this.distanceRangeRepository.update(distanceRange.id, { id: index + 1 });
+        await this.distanceRangeRepository.delete({ id });
+        let remainingDistanceRanges = await this.distanceRangeRepository.find({ order: { id: 'ASC' } });
+        if (remainingDistanceRanges && remainingDistanceRanges.length > 0) {
+            for (let i = id - 1; i < remainingDistanceRanges.length; i++) {
+                let distanceRange = remainingDistanceRanges[i];
+                let newId = i + 1;
+                let newFrom = (i === 0) ? 0 : remainingDistanceRanges[i - 1].to;
+                await this.distanceRangeRepository.update(distanceRange.id, { id: newId, from: newFrom, updatedAt: new Date() });
             }
-        });
-
-        return 'DistanceRange deleted successfully';
+        }
+        return true;
     }
 
 }
